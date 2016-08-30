@@ -1,0 +1,29 @@
+{
+    "name": "Whir.io",
+    "version": "0.1.0",
+    "description": "The whir.io chat server.",
+    "keywords": [],
+    "author": {
+        "name": "Stefan Aichholzer",
+        "email": "theaichholzer@gmail.com",
+        "url": "https://github.com/aichholzer"
+    },
+    "homepage": "https://github.com/WhirIO",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/WhirIO/Server"
+    },
+    "engines": {
+        "node": "6.2.x"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "dotenv": "^2.0.0",
+        "grunt": "^1.0.1",
+        "grunt-contrib-jshint": "^1.0.0",
+        "grunt-jscs": "^3.0.1",
+        "grunt-nodemon": "^0.4.2",
+        "jscs": "^3.0.7",
+        "jshint": "^2.9.3"
+    }
+}
