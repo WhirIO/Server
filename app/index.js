@@ -1,28 +1,30 @@
 'use strict';
 
 
-let config = require('./config'),
-    chat = require('./helpers/chat'),
-    net = require('net'),
-    options = {
-        port: config.port,
-        host: config.host
-    },
-    server = new net.Server(socket => {
-        socket.hash = `${socket.remoteAddress}:${socket.remotePort}`;
+let chat = require('./helpers/chat'),
+    express = require('express'),
+    app = express(),
+    port = process.env.PORT;
 
-        socket.write(chat.pack('general', `Hello ${socket.hash}`));
-        socket.on('data', data => {
-            console.log(chat.unpack(data));
-            socket.write(chat.pack('general', 'I, the server, received your message.'));
-        });
+require('express-ws')(app);
+app.use(
+    (req, res, next) => {
+        res.setHeader('X-POWERED-BY', 'analogbird.com');
+        return next();
+    }
+);
 
-        socket.on('end', () => {
-            // Remove this client from the clients store.
-            // Let all others know that this user is gone.
-        });
+app.get('/', (req, res) => {
+    res.send({});
+});
+
+app.ws('/', (ws) => {
+    ws.on('message', data => {
+        console.log(chat.unpack(data));
+        ws.send(chat.pack('general', 'I got your message.'));
     });
+});
 
-server.listen(options, () => {
-    console.log(`I'm listening: ${server.address()}`);
+app.listen(port, () => {
+    console.log(`The app is up on port: ${port}`);
 });
