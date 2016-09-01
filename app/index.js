@@ -1,12 +1,22 @@
 'use strict';
 
 
-let chat = require('./helpers/chat'),
+let message = require('./helpers/message'),
     express = require('express'),
     app = express(),
-    port = process.env.PORT;
+    port = process.env.PORT,
+    parse = require('./helpers/parse'),
+    server = require('express-ws')(app).getWss();
 
-require('express-ws')(app);
+
+server.on('connection', socket => {
+    // Check the username and channel here,
+    // see if the user exists and so on.
+    // Return the proper information.
+    console.log('test', parse.args(socket.upgradeReq));
+    socket.send(message.pack('server', 'developers', 'Welcome'), { binary: true, mask: true });
+});
+
 app.use(
     (req, res, next) => {
         res.setHeader('X-POWERED-BY', 'analogbird.com');
@@ -19,9 +29,10 @@ app.get('/', (req, res) => {
 });
 
 app.ws('/', (ws) => {
+
     ws.on('message', data => {
-        console.log(chat.unpack(data));
-        ws.send(chat.pack('general', 'I got your message.'));
+        data = message.unpack(data);
+        ws.send(message.pack('server', data.channel, 'I got your message.'), { binary: true, mask: true });
     });
 });
 
