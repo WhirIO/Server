@@ -22,8 +22,10 @@
     "compression": "^1.6.2",
     "express": "^4.14.0",
     "express-ws": "^2.0.0",
+    "mongoose": "^4.5.10",
     "serve-favicon": "^2.3.0",
-    "utf-8-validate": "^1.2.1"
+    "utf-8-validate": "^1.2.1",
+    "uuid": "^2.0.2"
   },
   "devDependencies": {
     "dotenv": "^2.0.0",
