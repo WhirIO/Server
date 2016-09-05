@@ -1,23 +1,13 @@
 'use strict';
 
 
-let crypto = require('crypto'),
-    message = require('./message');
+let message = require('./message');
 
 module.exports = {
 
-    getId: (socket, channel, sender) => {
+    send: (socket, data) => {
 
-        let remoteAddress = socket.upgradeReq.connection.remoteAddress,
-            remotePort = socket.upgradeReq.connection.remotePort,
-            hashData = `${remoteAddress}:${remotePort}:${channel || ''}:${sender || ''}`;
-
-        return crypto.createHash('RSA-SHA1').update(hashData, 'utf8').digest('hex');
-    },
-
-    send: (socket, data, close) => {
-
-        if (close) {
+        if (data.close) {
             return socket.close(1011, data.message);
         }
 

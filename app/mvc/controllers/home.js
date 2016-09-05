@@ -15,10 +15,10 @@ module.exports = {
         socket.on('message', data => {
 
             data = message.unpack(data);
-            let connectionId = socketHelper.getId(socket, data.channel, data.sender);
+            let connectionSession = socket.whir.headers.sessionId;
 
             for (let client of req.app.locals.wss.clients) {
-                if (client.currentChannel === socket.currentChannel && client.currentId !== connectionId) {
+                if (client.connectionChannel === socket.connectionChannel && client.connectionSession !== connectionSession) {
                     socketHelper.send(client, {
                         channel: data.channel,
                         sender: data.sender,

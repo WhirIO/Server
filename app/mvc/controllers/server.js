@@ -1,9 +1,7 @@
 'use strict';
 
 
-let parse = require('./helpers/parse'),
-    socketHelper = require('./helpers/socket'),
-    uuid = require('uuid'),
+let socketHelper = require('./helpers/socket'),
     m = require('../models');
 
 module.exports = {
@@ -11,38 +9,36 @@ module.exports = {
     start: wss => {
         wss.on('connection', socket => {
 
-            let args = parse.args(socket.upgradeReq);
-            args.channel = args.channel || uuid.v4();
-            args.username = args.username || uuid.v4();
-
             let update = {
-                $setOnInsert: {
-                    name: args.channel,
-                    maxUsers: args.max || 1000
-                }
-            };
+                    $setOnInsert: {
+                        name: socket.whir.headers.channel,
+                        maxUsers: socket.whir.headers.maxUsers
+                    }
+                };
 
-            m.channel.findOneAndUpdate({ name: args.channel }, update, { upsert: true, new: true })
+            if (!socket.whir.headers.sessionId) {
+                return socketHelper.send(socket, {
+                    message: 'We need a valid session ID.',
+                    close: true
+                });
+            }
+
+            m.channel.findOneAndUpdate({ name: socket.whir.headers.channel }, update, { upsert: true, new: true })
                 .exec()
                 .then(channel => {
 
-                    let userExists = channel.connectedUsers.find(user => {
-                        return user.username === args.username;
-                    });
-
-                    if (userExists) {
+                    if (channel.connectedUsers.find(user => user.username === socket.whir.headers.username)) {
                         return socketHelper.send(socket, {
-                            status: 400,
-                            channel: args.channel,
-                            message: 'This username is already being used in this channel.'
-                        }, true);
+                            message: 'This username is already being used in this channel.',
+                            close: true
+                        });
                     }
 
-                    socket.currentChannel = channel.name;
-                    socket.currentId = socketHelper.getId(socket, channel.name, args.username);
+                    socket.connectionChannel = channel.name;
+                    socket.connectionSession = socket.whir.headers.sessionId;
                     channel.connectedUsers.push({
-                        username: args.username,
-                        socketId: socket.currentId
+                        username: socket.whir.headers.username,
+                        socketId: socket.whir.headers.sessionId
                     });
 
                     channel.save(error => {
@@ -52,9 +48,9 @@ module.exports = {
                         }
 
                         socketHelper.send(socket, {
-                            channel: args.channel,
-                            username: args.username,
-                            message: `Welcome ${args.username} to channel ${args.channel} 👍🏼`
+                            channel: socket.whir.headers.channel,
+                            username: socket.whir.headers.username,
+                            message: `Welcome to the _${socket.whir.headers.channel}_ channel!`
                         });
                     });
                 })
