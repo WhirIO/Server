@@ -7,7 +7,6 @@ module.exports = {
 
     headers: (socket, req, next) => {
 
-        console.log('XXXXX');
         /**
          * TODO
          * Use roli.whir.io for a nice channel- and username.
