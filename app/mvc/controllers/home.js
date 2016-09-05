@@ -15,17 +15,14 @@ module.exports = {
         socket.on('message', data => {
 
             data = message.unpack(data);
-            let connectionSession = socket.whir.headers.sessionId;
-
-            for (let client of req.app.locals.wss.clients) {
-                if (client.connectionChannel === socket.connectionChannel && client.connectionSession !== connectionSession) {
-                    socketHelper.send(client, {
-                        channel: data.channel,
-                        sender: data.sender,
-                        message: data.message
-                    });
-                }
-            }
+            socketHelper.broadcast(req.app.locals.wss.clients,
+                socket.connectionChannel,
+                socket.whir.headers.sessionId,
+                {
+                    channel: data.channel,
+                    sender: data.sender,
+                    message: data.message
+                });
         });
     }
 };

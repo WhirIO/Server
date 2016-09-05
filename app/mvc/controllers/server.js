@@ -52,6 +52,10 @@ module.exports = {
                             username: socket.whir.headers.username,
                             message: `Welcome to the _${socket.whir.headers.channel}_ channel!`
                         });
+                        socketHelper.broadcast(wss.clients, socket.whir.headers.channel, socket.connectionSession, {
+                            channel: socket.whir.headers.channel,
+                            message: `_${socket.whir.headers.username}_ has joined.`
+                        });
                     });
                 })
                 .catch(error => {
