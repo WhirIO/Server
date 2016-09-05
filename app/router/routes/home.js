@@ -6,7 +6,7 @@ let parse = require('../../libraries/parse');
 module.exports = (router, control) => {
 
     router.get('/', control.home);
-    router.ws('/', parse.input, control.message);
+    router.ws('/', parse.headers, control.message);
 
     return router;
 };
