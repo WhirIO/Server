@@ -9,6 +9,9 @@ module.exports = {
     start: wss => {
         wss.on('connection', socket => {
 
+            console.log('ZZZZZZ');
+            console.log(socket.upgradeReq.headers);
+
             let update = {
                     $setOnInsert: {
                         name: socket.whir.headers.channel,
