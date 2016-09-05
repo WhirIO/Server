@@ -33,7 +33,7 @@ module.exports = {
         console.log(socket.upgradeReq.headers);
 
         socket.whir = {
-            headers: headers(socket);
+            headers: headers(socket)
         }
 
         if (socket.whir.headers.sessionId.length !== 64) {
