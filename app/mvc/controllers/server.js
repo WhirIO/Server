@@ -10,10 +10,7 @@ module.exports = {
     start: wss => {
         wss.on('connection', socket => {
 
-            console.log('ZZZZZZ');
-            console.log(JSON.stringify());
-
-            let headers = parse.headers(socket.upgradeReq.headers),
+            let headers = parse.headers(socket),
                 update = {
                     $setOnInsert: {
                         name: headers.channel,
