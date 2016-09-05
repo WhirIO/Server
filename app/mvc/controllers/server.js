@@ -2,6 +2,7 @@
 
 
 let socketHelper = require('./helpers/socket'),
+    parse = require('../../libraries/parse'),
     m = require('../models');
 
 module.exports = {
@@ -10,27 +11,28 @@ module.exports = {
         wss.on('connection', socket => {
 
             console.log('ZZZZZZ');
-            console.log(JSON.stringify(socket.upgradeReq.headers));
+            console.log(JSON.stringify());
 
-            let update = {
+            let headers = parse.headers(socket.upgradeReq.headers),
+                update = {
                     $setOnInsert: {
-                        name: socket.whir.headers.channel,
-                        maxUsers: socket.whir.headers.maxUsers
+                        name: headers.channel,
+                        maxUsers: headers.maxUsers
                     }
                 };
 
-            if (!socket.whir.headers.sessionId) {
+            if (!headers.sessionId) {
                 return socketHelper.send(socket, {
                     message: 'We need a valid session ID.',
                     close: true
                 });
             }
 
-            m.channel.findOneAndUpdate({ name: socket.whir.headers.channel }, update, { upsert: true, new: true })
+            m.channel.findOneAndUpdate({ name: headers.channel }, update, { upsert: true, new: true })
                 .exec()
                 .then(channel => {
 
-                    if (channel.connectedUsers.find(user => user.username === socket.whir.headers.username)) {
+                    if (channel.connectedUsers.find(user => user.username === headers.username)) {
                         return socketHelper.send(socket, {
                             message: 'This username is already being used in this channel.',
                             close: true
@@ -38,10 +40,10 @@ module.exports = {
                     }
 
                     socket.connectionChannel = channel.name;
-                    socket.connectionSession = socket.whir.headers.sessionId;
+                    socket.connectionSession = headers.sessionId;
                     channel.connectedUsers.push({
-                        username: socket.whir.headers.username,
-                        socketId: socket.whir.headers.sessionId
+                        username: headers.username,
+                        socketId: headers.sessionId
                     });
 
                     channel.save(error => {
@@ -51,13 +53,13 @@ module.exports = {
                         }
 
                         socketHelper.send(socket, {
-                            channel: socket.whir.headers.channel,
-                            username: socket.whir.headers.username,
-                            message: `Welcome to the _${socket.whir.headers.channel}_ channel!`
+                            channel: headers.channel,
+                            username: headers.username,
+                            message: `Welcome to the _${headers.channel}_ channel!`
                         });
-                        socketHelper.broadcast(wss.clients, socket.whir.headers.channel, socket.connectionSession, {
-                            channel: socket.whir.headers.channel,
-                            message: `_${socket.whir.headers.username}_ has joined.`
+                        socketHelper.broadcast(wss.clients, headers.channel, socket.connectionSession, {
+                            channel: headers.channel,
+                            message: `_${headers.username}_ has joined.`
                         });
                     });
                 })
