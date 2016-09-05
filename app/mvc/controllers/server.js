@@ -10,7 +10,7 @@ module.exports = {
         wss.on('connection', socket => {
 
             console.log('ZZZZZZ');
-            console.log(socket.upgradeReq.headers);
+            console.log(JSON.stringify(socket.upgradeReq.headers));
 
             let update = {
                     $setOnInsert: {
