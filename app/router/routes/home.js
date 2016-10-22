@@ -1,7 +1,7 @@
 'use strict';
 
 
-let parse = require('../../libraries/parse');
+const parse = _require('library/parse');
 
 module.exports = (router, control) => {
 

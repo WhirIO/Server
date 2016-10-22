@@ -1,11 +1,11 @@
 'use strict';
 
 
-let express = require('express'),
-    app = express(),
-    port = process.env.PORT,
-    wss = require('express-ws')(app).getWss(),
-    server = require('./mvc/controllers/server');
+global._require = module => require(`${__dirname}/${module}`);
+const express = require('express');
+const app = express();
+const wss = require('express-ws')(app).getWss();
+const server = _require('controllers/server');
 
 server.start(wss);
 app.locals.wss = wss;
@@ -14,7 +14,7 @@ app.use(
         res.setHeader('X-POWERED-BY', 'analogbird.com');
         next();
     },
-    require('./router')(express)
+    _require('router')(express)
 );
 
-app.listen(port, () => console.log(`Listening: ${port}`));
+app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));
