@@ -17,7 +17,7 @@ module.exports = {
                 socket.whir.session,
                 {
                     channel: data.channel,
-                    user: `@${data.user}`,
+                    user: data.user,
                     message: data.message
                 });
         });
@@ -38,9 +38,9 @@ module.exports = {
                 .exec()
                 .then(() => {
                     whir.broadcast(req.app.locals.wss.clients, socket.whir.session, {
-                        user: '@whir',
+                        user: 'whir',
                         channel: socket.whir.channel,
-                        message: `_@${socket.whir.user}_ has left.`
+                        message: `_${socket.whir.user}_ has left the channel!`
                     });
                 });
         });
