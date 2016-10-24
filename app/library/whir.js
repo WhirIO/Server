@@ -1,24 +1,36 @@
 'use strict';
 
 
-const send = (socket, data) => {
-    if (data.close) {
-        return socket.close(1011, data.message);
+class Whir {
+
+    constructor () {
+        this.user = 'whir';
+        this.color = 'white';
+        this.channel = '';
     }
 
-    socket.send(JSON.stringify(data), { binary: true, mask: true });
-};
+    send (client, data) {
+        if (data.close) {
+            return client.close(1011, data.message);
+        }
 
-module.exports = {
+        data.user = data.user || this.user;
+        data.color = data.color || this.color;
+        data.channel = data.channel || this.channel;
+        client.send(JSON.stringify(data), { binary: true, mask: true });
 
-    send: send,
+        return this;
+    }
 
-    broadcast: (clients, session, data) => {
+    broadcast (clients, session, data) {
 
-        for (let socket of clients) {
-            if (socket.whir.channel === data.channel && socket.whir.session !== session) {
-                send(socket, data);
+        const channel = data.channel || this.channel;
+        for (let client of clients) {
+            if (client.whir.channel === channel && client.whir.session !== session) {
+                this.send(client, data);
             }
         }
     }
-};
+}
+
+module.exports = new Whir();
