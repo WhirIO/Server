@@ -31,19 +31,16 @@ module.exports.start = wss => {
 
             const userExists = channel.connectedUsers.find(user => user.user === socket.whir.user);
             if (userExists) {
-                return whir.send(socket, {
-                    message: 'This user is already in use in this channel.',
-                    close: true
-                });
+                return whir.close(socket, 'This user is already in use in this channel.');
             }
 
             channel.connectedUsers.push(socket.whir);
             channel.save(() => {
                 whir.channel = socket.whir.channel;
-                whir.send(socket, { message: `Welcome to the _${socket.whir.channel}_ channel!` })
-                    .broadcast(wss.clients, socket.whir.session, {
-                        message: `_${socket.whir.user}_ has joined the channel!`
-                    });
+                whir.send(socket, { message: `Welcome to the _:channel:_ channel!` }, wss.clients.length)
+                    .broadcast(wss.clients, {
+                        message: `_:user:_ has joined the channel!`
+                    }, socket);
             });
         });
     });

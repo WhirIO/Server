@@ -16,7 +16,6 @@ module.exports = {
                 data.message = 'Available commands:';
                 data.payload = {
                     'exit': 'Leave the channel',
-                    'users': 'Currently connected users',
                     'find': '/find [starts with ...] - Find a user',
                     'kick': '/kick [username] - Remove a user from the channel',
                     'ban': '/ban [username] - Ban a user from the channel',
@@ -27,19 +26,6 @@ module.exports = {
                     'destroy': 'Remove all users and destroy the channel'
                 };
                 whir.send(socket, data);
-                break;
-
-            case 'users':
-                m.channel.findOne({ 'name': socket.whir.channel })
-                    .exec()
-                    .then(channel => {
-                        const users = channel.connectedUsers.length;
-                        const subject = users === 1 ? 'user' : 'users';
-                        const form = users === 1 ? 'is' : 'are';
-                        data.message = `There ${form} ${subject} ${users} connected to this channel.`;
-                        whir.send(socket, data);
-                    });
-
                 break;
         }
     }

@@ -18,18 +18,15 @@ module.exports = {
                 return commander.run.bind(this, whir)(socket, data.message);
             }
 
-            whir.broadcast(req.app.locals.wss.clients,
-                socket.whir.session,
-                {
-                    channel: socket.whir.channel,
-                    color: socket.whir.color,
-                    user: data.user,
-                    message: data.message
-                });
+            whir.broadcast(req.app.locals.wss.clients, {
+                channel: socket.whir.channel,
+                user: data.user,
+                message: data.message
+            }, socket);
         });
 
         socket.on('close', () => {
-            if (!socket.whir.channel) {
+            if (!socket.whir) {
                 return;
             }
 
@@ -42,12 +39,10 @@ module.exports = {
                 })
                 .exec()
                 .then(() => {
-                    whir.broadcast(req.app.locals.wss.clients, socket.whir.session, {
-                        user: 'whir',
-                        color: 'white',
+                    whir.broadcast(req.app.locals.wss.clients, {
                         channel: socket.whir.channel,
-                        message: `_${socket.whir.user}_ has left the channel!`
-                    });
+                        message: '_:user:_ has left the channel!'
+                    }, socket);
                 });
         });
     }
