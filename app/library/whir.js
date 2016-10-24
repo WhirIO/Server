@@ -16,7 +16,7 @@ module.exports = {
     broadcast: (clients, session, data) => {
 
         for (let socket of clients) {
-            if (socket.connectedChannel === data.channel && socket.connectedSession !== session) {
+            if (socket.whir.channel === data.channel && socket.whir.session !== session) {
                 send(socket, data);
             }
         }

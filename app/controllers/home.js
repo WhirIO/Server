@@ -16,15 +16,15 @@ module.exports = {
             whir.broadcast(req.app.locals.wss.clients,
                 socket.whir.session,
                 {
-                    channel: data.channel,
+                    channel: socket.whir.channel,
+                    color: socket.whir.color,
                     user: data.user,
                     message: data.message
                 });
         });
 
         socket.on('close', () => {
-
-            if (!socket.connectedChannel) {
+            if (!socket.whir.channel) {
                 return;
             }
 
@@ -39,6 +39,7 @@ module.exports = {
                 .then(() => {
                     whir.broadcast(req.app.locals.wss.clients, socket.whir.session, {
                         user: 'whir',
+                        color: 'white',
                         channel: socket.whir.channel,
                         message: `_${socket.whir.user}_ has left the channel!`
                     });

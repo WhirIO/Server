@@ -37,26 +37,17 @@ module.exports.start = wss => {
                 });
             }
 
-            socket.connectedChannel = channel.name;
-            socket.connectedSession = socket.whir.session;
-            channel.connectedUsers.push({
-                user: socket.whir.user,
-                session: socket.whir.session
-            });
-
-            channel.save(error => {
-                if (error) {
-                    // Handle the error
-                    error = null;
-                }
-
+            channel.connectedUsers.push(socket.whir);
+            channel.save(() => {
                 whir.send(socket, {
                     user: 'whir',
+                    color: 'white',
                     channel: socket.whir.channel,
                     message: `Welcome to the _${socket.whir.channel}_ channel!`
                 });
                 whir.broadcast(wss.clients, socket.connectedSession, {
                     user: 'whir',
+                    color: 'white',
                     channel: socket.whir.channel,
                     message: `_${socket.whir.user}_ has joined the channel!`
                 });
