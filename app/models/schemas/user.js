@@ -6,7 +6,7 @@ module.exports = mongoose => {
     const Schema = mongoose.Schema;
     const schema = new Schema(
         {
-            user: {
+            username: {
                 type: String,
                 trim: true,
                 lowercase: true,
