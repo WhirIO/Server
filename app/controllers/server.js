@@ -41,7 +41,7 @@ module.exports.start = wss => {
             channel.save(() => {
                 whir.channel = socket.whir.channel;
                 whir.send(socket, { message: `Welcome to the _${socket.whir.channel}_ channel!` })
-                    .broadcast(wss.clients, socket.connectedSession, {
+                    .broadcast(wss.clients, socket.whir.session, {
                         message: `_${socket.whir.user}_ has joined the channel!`
                     });
             });

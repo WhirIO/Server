@@ -3,6 +3,7 @@
 
 const m = _require('models');
 const whir = _require('library/whir');
+const commander = _require('library/commander');
 
 module.exports = {
 
@@ -13,6 +14,10 @@ module.exports = {
         socket.on('message', data => {
 
             data = JSON.parse(data.toString('utf8'));
+            if (data.message.match(/^\/[\w]/)) {
+                return commander.run.bind(this, whir)(socket, data.message);
+            }
+
             whir.broadcast(req.app.locals.wss.clients,
                 socket.whir.session,
                 {
