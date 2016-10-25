@@ -14,11 +14,14 @@ class Whir {
         data.channel = data.channel || this.channel;
         data.users = connectedClients;
         data.message = data.message.replace(/:([\w]+):/g, (match, property) => {
+            if (property === 'user') {
+                return data.action.user || match;
+            }
+
             return client.whir[property] || match;
         });
 
         client.send(JSON.stringify(data), { binary: true, mask: true });
-
         return this;
     }
 
