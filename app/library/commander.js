@@ -15,15 +15,15 @@ module.exports = {
             case 'help':
                 data.message = 'Available commands:';
                 data.payload = {
-                    'exit': 'Leave the channel',
-                    'find': '/find [starts with ...] - Find a user',
-                    'kick': '/kick [username] - Remove a user from the channel',
-                    'ban': '/ban [username] - Ban a user from the channel',
-                    'purge': '/purge [minutes] - Remove users inactive for more than [minutes]',
-                    'private': '/private [password] - Make the channel private',
-                    'public': 'Make the channel public',
-                    'stats': 'Basic statistics about the channel',
-                    'destroy': 'Remove all users and destroy the channel'
+                    'exit': '',
+                    'find': '/find [starts with ...]',
+                    'kick': '/kick [username]',
+                    'ban': '/ban [username]',
+                    'purge': '/purge [minutes]',
+                    'private': '/private [password]',
+                    'public': '',
+                    'stats': '',
+                    'destroy': ''
                 };
                 whir.send(socket, data);
                 break;

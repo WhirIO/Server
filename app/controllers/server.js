@@ -10,10 +10,7 @@ module.exports.start = wss => {
     wss.on('connection', socket => {
 
         if (!socket.whir.session) {
-            return whir.send(socket, {
-                message: 'I need a valid session ID.',
-                close: true
-            });
+            return whir.close(socket, 'You need a valid session.');
         }
 
         const update = {
@@ -42,7 +39,7 @@ module.exports.start = wss => {
                         currentUsers: wss.clients
                             .map(client => socket.whir.user !== client.whir.user ? client.whir.user : null)
                             .filter(user => user)
-                    }, wss.clients.length)
+                    })
                     .broadcast(wss.clients, {
                         message: `_:user:_ has joined the channel!`,
                         action: {

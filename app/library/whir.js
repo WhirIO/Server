@@ -8,11 +8,10 @@ class Whir {
         this.channel = '';
     }
 
-    send (client, data, connectedClients = 0) {
+    send (client, data) {
 
         data.user = data.user || this.user;
         data.channel = data.channel || this.channel;
-        data.users = connectedClients;
         data.message = data.message.replace(/:([\w]+):/g, (match, property) => {
             if (property === 'user') {
                 return data.action.user || match;
@@ -38,7 +37,7 @@ class Whir {
         const channel = data.channel || this.channel;
         for (let client of clients) {
             if (client.whir.channel === channel && client !== currentClient) {
-                this.send(client, data, clients.length);
+                this.send(client, data);
             }
         }
     }

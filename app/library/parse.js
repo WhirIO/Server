@@ -1,7 +1,6 @@
 'use strict';
 
 
-const uuid = require('uuid');
 const roli = require('roli');
 
 module.exports = {
