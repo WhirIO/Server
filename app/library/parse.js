@@ -11,7 +11,7 @@ module.exports = {
         const headers = socket.upgradeReq.headers;
         socket.whir = {
             user: headers['x-whir-user'],
-            channel: headers['x-whir-channel'] || roli({ separator: '' }),
+            channel: headers['x-whir-channel'] || roli({ case: 'lower' }),
             maxUsers: headers['x-whir-max'] || 1000,
             timeOut: headers['x-whir-timeout'] || 0,
             session: headers['x-whir-session'] || null
