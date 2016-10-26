@@ -22,7 +22,7 @@ module.exports.start = wss => {
 
             const userExists = channel.connectedUsers.find(user => user.user === socket.whir.user);
             if (userExists) {
-                return whir.close(socket, 'This user is already in use in this channel.');
+                return whir.close(socket, 'This user(name) is already connected to this channel.');
             }
 
             channel.connectedUsers.push(socket.whir);
@@ -46,6 +46,6 @@ module.exports.start = wss => {
     });
 
     wss.on('close', socket => {
-       console.log('closed', socket);
+        console.error('Socket closed!', socket);
     });
 };

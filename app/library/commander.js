@@ -7,17 +7,14 @@ module.exports = {
 
     run: (whir, socket, command) => {
 
-        command = command.replace(/^\//g, '');
         const data = {};
-
         data.channel = socket.whir.channel;
-        switch (command) {
+        command = command.match(/^\/([\w]+)\s(.*)/);
+        switch (command[1]) {
             case 'help':
                 data.message = 'Available commands:';
                 data.payload = {
-                    'exit': '',
-                    'mute': '',
-                    'unmute': '',
+                    'desc': '/desc [channel description]',
                     'max': '/max 50',
                     'find': '/find [starts with ...]',
                     'kick': '/kick [username]',
@@ -25,10 +22,21 @@ module.exports = {
                     'purge': '/purge [minutes]',
                     'private': '/private [password]',
                     'public': '',
-                    'stats': '',
-                    'destroy': ''
+                    'info': '',
+                    'mute': '',
+                    'unmute': '',
+                    'exit': ''
                 };
                 whir.send(socket, data);
+                break;
+
+            case 'desc':
+                m.channel.findOneAndUpdate({ name: socket.whir.channel }, { description: command[2] }, { new: true })
+                    .exec()
+                    .then(channel => {
+                        data.message = `Updated channel description: _${channel.description}_`;
+                        whir.send(socket, data);
+                    });
                 break;
         }
     }
