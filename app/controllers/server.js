@@ -13,7 +13,11 @@ module.exports.start = wss => {
             return whir.close(socket, 'You need a valid session.');
         }
 
-        const update = { $setOnInsert: { name: socket.whir.channel } };
+        const update = { $setOnInsert: {
+            name: socket.whir.channel,
+            'meta.owner': socket.whir.session
+        }};
+
         co(function* () {
 
             const channel = yield m.channel

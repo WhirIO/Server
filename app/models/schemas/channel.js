@@ -40,6 +40,10 @@ module.exports = mongoose => {
                 }
             ],
             meta: {
+                owner: {
+                    type: String,
+                    required: true
+                },
                 createdOn: {
                     type: Date,
                     default: Date.now
