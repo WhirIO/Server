@@ -27,10 +27,6 @@ module.exports = mongoose => {
                         type: String,
                         required: true
                     },
-                    color: {
-                        type: String,
-                        required: true
-                    },
                     session: {
                         type: String,
                         required: true
