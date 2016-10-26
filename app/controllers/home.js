@@ -7,8 +7,6 @@ const commander = _require('library/commander');
 
 module.exports = {
 
-    home: (req, res) => res.sendStatus(404).end(),
-
     message: (socket, req) => {
 
         socket.on('message', data => {
@@ -37,7 +35,7 @@ module.exports = {
                 .then(() => {
                     whir.broadcast(req.app.locals.wss.clients, {
                         channel: socket.whir.channel,
-                        message: '_:user:_ has left the channel!',
+                        message: '-:user:- has left the channel!',
                         action: {
                             method: 'leave',
                             user: socket.whir.user

@@ -4,7 +4,7 @@
 class Whir {
 
     constructor () {
-        this.user = 'whir';
+        this.user = '';
         this.channel = '';
     }
 
@@ -29,7 +29,7 @@ class Whir {
      * one initiating the request, defined by the "currentClient" argument.
      *
      * @param clients - Current WS clients.
-     * @param data - The data being broadcasted.
+     * @param data - The data being broadcast.
      * @param currentClient - The current client, if any.
      */
     broadcast (clients, data, currentClient) {

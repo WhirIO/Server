@@ -24,6 +24,10 @@ module.exports.start = wss => {
                 .findOneAndUpdate({ name: socket.whir.channel }, update, { upsert: true, new: true })
                 .exec();
 
+            if (!channel.access.public) {
+                //return whir.close(socket, 'This is a private channel; you need a password.');
+            }
+
             const userExists = channel.connectedUsers.find(user => user.user === socket.whir.user);
             if (userExists) {
                 return whir.close(socket, 'This user(name) is already connected to this channel.');
@@ -34,12 +38,12 @@ module.exports.start = wss => {
                 whir.channel = socket.whir.channel;
                 whir.send(socket, {
                         message: `Welcome to the _:channel:_ channel!`,
-                        currentUsers: wss.clients
-                            .map(client => socket.whir.user !== client.whir.user ? client.whir.user : null)
+                        currentUsers: channel.connectedUsers
+                            .map(user => user.user !== socket.whir.user ? user.user : null)
                             .filter(user => user)
                     })
                     .broadcast(wss.clients, {
-                        message: `_:user:_ has joined the channel!`,
+                        message: `-:user:- has joined the channel!`,
                         action: {
                             method: 'join',
                             user: socket.whir.user

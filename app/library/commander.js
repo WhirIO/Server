@@ -1,6 +1,7 @@
 'use strict';
 
 
+const bcrypt = require('promised-bcrypt');
 const m = _require('models');
 
 module.exports = {
@@ -12,8 +13,9 @@ module.exports = {
         input = input.match(/^\/([\w]+)\s?(.*)?/);
         switch (input[1]) {
             case 'help':
-                data.message = 'Commands';
+                data.message = 'Commands:';
                 data.payload = {
+                    showTitle: true,
                     items: {
                         '/find': { type: 'string', value: '/find [starts with ...]' },
                         '/desc': { type: 'string', value: '/desc [channel description]' },
@@ -37,15 +39,21 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
-                        let users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0);
-                        data.message = `Found ${users.length} matching users.`;
+                        let users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0).sort();
+                        data.message = `${users.length} matches:`;
                         data.payload = {
+                            showTitle: true,
                             items: {}
                         };
 
-                        users.forEach(user => {
-                            data.payload.items[user.user] = { type: 'date', value: user.meta.joinedOn };
-                        });
+                        const usersToShow = users.length >= 10 ? 10 : users.length;
+                        for (let usr = 0; usr < usersToShow; usr++) {
+                            data.payload.items[users[usr].user] = { type: 'string', value: '' };
+                        }
+
+                        if (users.length > usersToShow) {
+                            data.payload.items['...'] = { type: 'string', value: '' };
+                        }
 
                         whir.send(socket, data);
                     });
@@ -61,11 +69,11 @@ module.exports = {
                     .exec()
                     .then(channel => {
                         if (!channel) {
-                            data.message = 'You can\'t update this channel\'s description.';
+                            data.message = 'You can\'t update this channel.';
                             return whir.send(socket, data);
                         }
 
-                        data.message = 'Channel description has been set.';
+                        data.message = 'Description updated.';
                         whir.send(socket, data);
                     });
                 break;
@@ -80,11 +88,51 @@ module.exports = {
                     .exec()
                     .then(channel => {
                         if (!channel) {
-                            data.message = 'You can\'t update this channel\'s max. users.';
+                            data.message = 'You can\'t update this channel.';
                             return whir.send(socket, data);
                         }
 
-                        data.message = 'Channel max. users has been set.';
+                        data.message = 'Max. users updated.';
+                        whir.send(socket, data);
+                    });
+                break;
+
+            case 'private':
+                bcrypt.hash(input[2])
+                    .then(hash => m.channel.findOneAndUpdate({
+                                name: socket.whir.channel,
+                                'meta.owner': socket.whir.session
+                            },
+                            { 'access.public': false, 'access.password': hash })
+                            .lean()
+                            .exec()
+                    )
+                    .then(channel => {
+                        if (!channel) {
+                            data.message = 'You can\'t update this channel.';
+                            return whir.send(socket, data);
+                        }
+
+                        data.message = 'The channel is now private.';
+                        whir.send(socket, data);
+                    });
+                break;
+
+            case 'public':
+                m.channel.findOneAndUpdate({
+                        name: socket.whir.channel,
+                        'meta.owner': socket.whir.session
+                    },
+                    { 'access.public': true, 'access.password': null })
+                    .lean()
+                    .exec()
+                    .then(channel => {
+                        if (!channel) {
+                            data.message = 'You can\'t update this channel.';
+                            return whir.send(socket, data);
+                        }
+
+                        data.message = 'The channel is now public.';
                         whir.send(socket, data);
                     });
                 break;
@@ -94,8 +142,9 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
-                        data.message = 'Channel';
+                        data.message = 'Channel:';
                         data.payload = {
+                            showTitle: true,
                             pad: false,
                             items: {
                                 'Name:': { type: 'string', value: channel.name },

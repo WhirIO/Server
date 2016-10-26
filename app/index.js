@@ -14,7 +14,8 @@ app.use(
         res.setHeader('X-POWERED-BY', 'analogbird.com');
         next();
     },
-    _require('router')(express)
+    _require('router')(express),
+    (req, res) => (req, res) => res.sendStatus(404).end()
 );
 
 app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));

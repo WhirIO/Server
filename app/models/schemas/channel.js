@@ -39,6 +39,16 @@ module.exports = mongoose => {
                     }
                 }
             ],
+            access: {
+                public: {
+                    type: Boolean,
+                    default: true
+                },
+                password: {
+                    type: String,
+                    default: null
+                }
+            },
             meta: {
                 owner: {
                     type: String,
