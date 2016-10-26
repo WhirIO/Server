@@ -16,6 +16,9 @@ module.exports = {
                 data.message = 'Available commands:';
                 data.payload = {
                     'exit': '',
+                    'mute': '',
+                    'unmute': '',
+                    'max': '/max 50',
                     'find': '/find [starts with ...]',
                     'kick': '/kick [username]',
                     'ban': '/ban [username]',

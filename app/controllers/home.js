@@ -31,11 +31,7 @@ module.exports = {
             }
 
             m.channel.findOneAndUpdate({ name: socket.whir.channel }, {
-                    $pull: {
-                        connectedUsers: {
-                            user: socket.whir.user
-                        }
-                    }
+                    $pull: { connectedUsers: { user: socket.whir.user } }
                 })
                 .exec()
                 .then(() => {
