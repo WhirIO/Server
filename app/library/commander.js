@@ -9,7 +9,7 @@ module.exports = {
 
         const data = {};
         data.channel = socket.whir.channel;
-        command = command.match(/^\/([\w]+)\s(.*)/);
+        command = command.match(/^\/([\w]+)\s?(.*)?/);
         switch (command[1]) {
             case 'help':
                 data.message = 'Available commands:';
