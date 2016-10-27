@@ -19,7 +19,7 @@ module.exports = {
                     items: {
                         '/find': { type: 'string', value: '/find [starts with ...]' },
                         '/desc': { type: 'string', value: '/desc [channel description]' },
-                        '/max': { type: 'string', value: '/max 50' },
+                        '/max': { type: 'string', value: '/max [number]' },
                         '/kick': { type: 'string', value: '/kick [username]' },
                         '/ban': { type: 'string', value: '/ban [username]' },
                         '/purge': { type: 'string', value: '/purge [minutes]' },

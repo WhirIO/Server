@@ -42,9 +42,9 @@ class Whir {
         }
     }
 
-    close (client, message) {
+    close (client, data) {
         client.whir = null;
-        client.close(1011, message);
+        client.close(1011, JSON.stringify(data));
     }
 }
 

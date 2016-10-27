@@ -10,7 +10,10 @@ module.exports.start = wss => {
     wss.on('connection', socket => {
 
         if (!socket.whir.session) {
-            return whir.close(socket, 'You need a valid session.');
+            return whir.close(socket, {
+                message: 'You need a valid session.',
+                channel: socket.whir.channel
+            });
         }
 
         const update = { $setOnInsert: {
@@ -25,12 +28,18 @@ module.exports.start = wss => {
                 .exec();
 
             if (!channel.access.public) {
-                //return whir.close(socket, 'This is a private channel; you need a password.');
+                return whir.close(socket, {
+                    message: 'This is a private channel; you need a password.',
+                    channel: socket.whir.channel
+                });
             }
 
             const userExists = channel.connectedUsers.find(user => user.user === socket.whir.user);
             if (userExists) {
-                return whir.close(socket, 'This user(name) is already connected to this channel.');
+                return whir.close(socket, {
+                    message: 'This username is already in use in this channel.',
+                    channel: socket.whir.channel
+                });
             }
 
             channel.connectedUsers.push(socket.whir);
