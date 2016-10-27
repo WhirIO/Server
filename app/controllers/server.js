@@ -43,11 +43,9 @@ module.exports.start = wss => {
                             .filter(user => user)
                     })
                     .broadcast(wss.clients, {
-                        message: `-:user:- has joined the channel!`,
-                        action: {
-                            method: 'join',
-                            user: socket.whir.user
-                        }
+                        user: socket.whir.user,
+                        message: '-I joined the channel.-',
+                        action: 'join'
                     }, socket);
             });
         });

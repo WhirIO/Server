@@ -35,11 +35,9 @@ module.exports = {
                 .then(() => {
                     whir.broadcast(req.app.locals.wss.clients, {
                         channel: socket.whir.channel,
-                        message: '-:user:- has left the channel!',
-                        action: {
-                            method: 'leave',
-                            user: socket.whir.user
-                        }
+                        user: socket.whir.user,
+                        message: '-I left the channel.-',
+                        action: 'leave'
                     }, socket);
                 });
         });

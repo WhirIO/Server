@@ -28,6 +28,7 @@ module.exports = {
                         '/info': { type: 'string', value: '' },
                         '/mute': { type: 'string', value: '' },
                         '/unmute': { type: 'string', value: '' },
+                        '/clear': { type: 'string', value: '' },
                         '/exit': { type: 'string', value: '' }
                     }
                 };
