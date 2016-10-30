@@ -14,7 +14,6 @@ app.use(
         res.setHeader('X-POWERED-BY', 'analogbird.com');
         next();
     },
-    express.static(`${__dirname}/public`),
     _require('router')(express)
 );
 
