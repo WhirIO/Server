@@ -26,7 +26,7 @@ Models.prototype.load = function () {
     fs.readdirSync(schemaPath).forEach(file => {
         if (file.match(/(.+)\.js$/)) {
             try {
-                this.schemas[file.replace('.js', '')] = _require(schemaPath + file)(mongoose);
+                this.schemas[file.replace('.js', '')] = require(schemaPath + file)(mongoose);
             } catch (error) {
                 this.emit('error', `I can\'t load model: ${file}`);
             }

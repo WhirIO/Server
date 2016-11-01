@@ -10,6 +10,7 @@ const wss = require('express-ws')(app).getWss();
 /**
  * Pre-load all existing models so they are available everywhere else
  * in the application.
+ * If loading succeeds, then continue loading the rest of the application.
  * This initial load relies on a synchronous call, only acceptable at boot time.
  * @see models/index.js
  */
