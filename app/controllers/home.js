@@ -1,9 +1,9 @@
 'use strict';
 
 
-const m = _require('models');
 const whir = _require('library/whir');
 const commander = _require('library/commander');
+const m = _require('models').schemas;
 
 module.exports = {
 

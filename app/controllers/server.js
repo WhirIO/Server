@@ -3,7 +3,7 @@
 
 const co = require('co');
 const whir = _require('library/whir');
-const m = _require('models');
+const m = _require('models').schemas;
 
 module.exports.start = wss => {
 
@@ -21,7 +21,7 @@ module.exports.start = wss => {
             'meta.owner': socket.whir.session
         }};
 
-        co(function* () {
+        co(function *() {
 
             const channel = yield m.channel
                 .findOneAndUpdate({ name: socket.whir.channel }, update, { upsert: true, new: true })
