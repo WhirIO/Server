@@ -18,9 +18,9 @@ module.exports.run = (whir, socket, input) => {
                     '/find': { type: 'string', value: '/find [starts with ...]' },
                     '/desc': { type: 'string', value: '/desc [channel description]' },
                     '/max': { type: 'string', value: '/max [number]' },
-                    '/kick': { type: 'string', value: '/kick [username]' },
-                    '/ban': { type: 'string', value: '/ban [username]' },
-                    '/purge': { type: 'string', value: '/purge [minutes]' },
+                    //'/kick': { type: 'string', value: '/kick [username]' },
+                    //'/ban': { type: 'string', value: '/ban [username]' },
+                    //'/purge': { type: 'string', value: '/purge [minutes]' },
                     '/private': { type: 'string', value: '/private [password]' },
                     '/public': { type: 'string', value: '' },
                     '/info': { type: 'string', value: '' },
@@ -78,11 +78,19 @@ module.exports.run = (whir, socket, input) => {
             break;
 
         case 'max':
+            let maxUsers = Math.abs(parseInt(input[2], 10));
+            if (!maxUsers) {
+                data.message = 'You must provide a valid number.';
+                return whir.send(socket, data);
+            }
+
+            maxUsers = maxUsers < 2 ? 2 : maxUsers;
+            maxUsers = maxUsers > 500 ? 500 : maxUsers;
             m.channel.findOneAndUpdate({
                     name: socket.whir.channel,
                     'meta.owner': socket.whir.session
                 },
-                { maxUsers: parseInt(input[2], 10) })
+                { maxUsers: maxUsers })
                 .lean()
                 .exec()
                 .then(channel => {
@@ -91,7 +99,7 @@ module.exports.run = (whir, socket, input) => {
                         return whir.send(socket, data);
                     }
 
-                    data.message = 'Max. users updated.';
+                    data.message = `Max. users set to _${maxUsers}_.`;
                     whir.send(socket, data);
                 });
             break;
