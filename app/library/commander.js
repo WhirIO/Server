@@ -1,8 +1,6 @@
 'use strict';
 
 
-const m = _require('models');
-
 module.exports = {
 
     run: (whir, socket, command) => {

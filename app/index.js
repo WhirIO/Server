@@ -1,20 +1,34 @@
 'use strict';
 
 
-global._require = module => require(`${__dirname}/${module}`);
-const express = require('express');
+require('attract')({ basePath: __dirname });
+const [
+    express,
+    expressWS,
+    server,
+    router,
+    models
+] = attract('express', 'express-ws', 'controllers/server', 'router', 'models');
 const app = express();
-const wss = require('express-ws')(app).getWss();
-const server = _require('controllers/server');
+const wss = expressWS(app).getWss();
+models.on('error', error => {
+    console.error(error);
+    process.exit();
+});
 
-server.start(wss);
-app.locals.wss = wss;
-app.use(
-    (req, res, next) => {
-        res.setHeader('X-POWERED-BY', 'analogbird.com');
-        next();
-    },
-    _require('router')(express)
-);
+models.on('loaded', () => {
 
-app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));
+    server.start(wss);
+    app.locals.wss = wss;
+    app.use(
+        (req, res, next) => {
+            res.setHeader('X-POWERED-BY', 'analogbird.com');
+            next();
+        },
+        router(express)
+    );
+
+    app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));
+});
+
+models.load();

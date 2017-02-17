@@ -1,7 +1,7 @@
 'use strict';
 
 
-const roli = require('roli');
+const roli = attract('roli');
 
 module.exports = {
 
