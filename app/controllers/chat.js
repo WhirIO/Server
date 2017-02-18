@@ -1,9 +1,8 @@
 'use strict';
 
 
-const whir = _require('library/whir');
-const commander = _require('library/commander');
-const m = _require('models').schemas;
+const [whir, commander, models] = attract('library/whir', 'library/commander', 'models');
+const m = models.schemas;
 
 module.exports.message = (socket, req) => {
 
