@@ -1,7 +1,7 @@
 'use strict';
 
 
-const parse = _require('library/parse');
+const parse = attract('library/parse');
 
 module.exports = (router, control) => {
 

@@ -1,9 +1,12 @@
 'use strict';
 
 
-const m = _require('models');
-const whir = _require('library/whir');
-const commander = _require('library/commander');
+const [
+    models,
+    whir,
+    commander
+] = attract('models', 'library/whir', 'library/commander');
+const m = models.schemas;
 
 module.exports = {
 

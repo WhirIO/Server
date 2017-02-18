@@ -1,9 +1,12 @@
 'use strict';
 
 
-const co = require('co');
-const whir = _require('library/whir');
-const m = _require('models');
+const [
+    co,
+    whir,
+    models
+] = attract('co', 'library/whir', 'models');
+const m = models.schemas;
 
 module.exports.start = wss => {
 
