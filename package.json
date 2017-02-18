@@ -1,41 +1,42 @@
 {
-    "name": "whir.io",
-    "version": "1.0.1",
-    "description": "The whir.io chat server.",
-    "keywords": [],
-    "author": {
-        "name": "Stefan Aichholzer",
-        "email": "play@analogbird.com",
-        "url": "https://github.com/aichholzer"
-    },
-    "homepage": "https://github.com/WhirIO",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/WhirIO/Server"
-    },
-    "engines": {
-        "node": ">=7.5"
-    },
-    "dependencies": {
-        "attract": "^2.0.2",
-        "body-parser": "^1.16.1",
-        "bufferutil": "^2.0.1",
-        "co": "^4.6.0",
-        "compression": "^1.6.2",
-        "express": "^4.14.1",
-        "express-ws": "^3.0.0",
-        "mongoose": "^4.8.3",
-        "roli": "^0.2.1",
-        "serve-favicon": "^2.3.2",
-        "utf-8-validate": "^3.0.1"
-    },
-    "devDependencies": {
-        "dotenv": "^4.0.0",
-        "grunt": "^1.0.1",
-        "grunt-contrib-jshint": "^1.1.0",
-        "grunt-jscs": "^3.0.1",
-        "grunt-nodemon": "^0.4.2",
-        "jscs": "^3.0.7",
-        "jshint": "^2.9.3"
-    }
+  "name": "whir.io",
+  "version": "1.0.1",
+  "description": "The whir.io chat server.",
+  "keywords": [],
+  "author": {
+    "name": "Stefan Aichholzer",
+    "email": "play@analogbird.com",
+    "url": "https://github.com/aichholzer"
+  },
+  "homepage": "https://github.com/WhirIO",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhirIO/Server"
+  },
+  "engines": {
+    "node": ">=7.5"
+  },
+  "dependencies": {
+    "attract": "^2.0.2",
+    "body-parser": "^1.16.1",
+    "bufferutil": "^2.0.1",
+    "co": "^4.6.0",
+    "compression": "^1.6.2",
+    "express": "^4.14.1",
+    "express-ws": "^3.0.0",
+    "mongoose": "^4.8.3",
+    "promised-bcrypt": "^0.2.2",
+    "roli": "^0.2.1",
+    "serve-favicon": "^2.3.2",
+    "utf-8-validate": "^3.0.1"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0",
+    "grunt": "^1.0.1",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-jscs": "^3.0.1",
+    "grunt-nodemon": "^0.4.2",
+    "jscs": "^3.0.7",
+    "jshint": "^2.9.3"
+  }
 }

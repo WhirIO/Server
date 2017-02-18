@@ -1,8 +1,8 @@
 'use strict';
 
 
-const bcrypt = require('promised-bcrypt');
-const m = _require('models');
+const [bcrypt, models] = attract('promised-bcrypt', 'models');
+const m = models.schemas;
 
 module.exports = {
 
@@ -40,7 +40,7 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
-                        let users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0).sort();
+                        const users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0).sort();
                         data.message = `${users.length} matches:`;
                         data.payload = {
                             showTitle: true,
@@ -69,12 +69,11 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
+                        data.message = 'Description updated.';
                         if (!channel) {
                             data.message = 'You can\'t update this channel.';
-                            return whir.send(socket, data);
                         }
 
-                        data.message = 'Description updated.';
                         whir.send(socket, data);
                     });
                 break;
@@ -88,12 +87,11 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
+                        data.message = 'Max. users updated.';
                         if (!channel) {
                             data.message = 'You can\'t update this channel.';
-                            return whir.send(socket, data);
                         }
 
-                        data.message = 'Max. users updated.';
                         whir.send(socket, data);
                     });
                 break;
@@ -109,12 +107,11 @@ module.exports = {
                             .exec()
                     )
                     .then(channel => {
+                        data.message = 'The channel is now private.';
                         if (!channel) {
                             data.message = 'You can\'t update this channel.';
-                            return whir.send(socket, data);
                         }
 
-                        data.message = 'The channel is now private.';
                         whir.send(socket, data);
                     });
                 break;
@@ -128,12 +125,11 @@ module.exports = {
                     .lean()
                     .exec()
                     .then(channel => {
+                        data.message = 'The channel is now public.';
                         if (!channel) {
                             data.message = 'You can\'t update this channel.';
-                            return whir.send(socket, data);
                         }
 
-                        data.message = 'The channel is now public.';
                         whir.send(socket, data);
                     });
                 break;
