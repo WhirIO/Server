@@ -4,9 +4,7 @@
 const [bcrypt, models] = attract('promised-bcrypt', 'models');
 const m = models.schemas;
 
-module.exports = {
-
-    run: (whir, socket, input) => {
+module.exports.run = (whir, socket, input) => {
 
         const data = {};
         data.channel = socket.whir.channel;
@@ -35,30 +33,30 @@ module.exports = {
                 whir.send(socket, data);
                 break;
 
-            case 'find':
-                m.channel.findOne({ name: socket.whir.channel })
-                    .lean()
-                    .exec()
-                    .then(channel => {
-                        const users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0).sort();
-                        data.message = `${users.length} matches:`;
-                        data.payload = {
-                            showTitle: true,
-                            items: {}
-                        };
+        case 'find':
+            m.channel.findOne({ name: socket.whir.channel })
+                .lean()
+                .exec()
+                .then(channel => {
+                    let users = channel.connectedUsers.filter(item => item.user.indexOf(input[2]) >= 0).sort();
+                    data.message = !users.length ? 'No matches found.' : `${users.length} matches:`;
+                    data.payload = {
+                        showTitle: true,
+                        items: {}
+                    };
 
-                        const usersToShow = users.length >= 10 ? 10 : users.length;
-                        for (let usr = 0; usr < usersToShow; usr++) {
-                            data.payload.items[users[usr].user] = { type: 'string', value: '' };
-                        }
+                    const usersToShow = users.length >= 10 ? 10 : users.length;
+                    for (let usr = 0; usr < usersToShow; usr++) {
+                        data.payload.items[users[usr].user] = { type: 'string', value: '' };
+                    }
 
-                        if (users.length > usersToShow) {
-                            data.payload.items['...'] = { type: 'string', value: '' };
-                        }
+                    if (users.length > usersToShow) {
+                        data.payload.items['...'] = { type: 'string', value: '' };
+                    }
 
-                        whir.send(socket, data);
-                    });
-                break;
+                    whir.send(socket, data);
+                });
+            break;
 
             case 'desc':
                 m.channel.findOneAndUpdate({
@@ -78,23 +76,31 @@ module.exports = {
                     });
                 break;
 
-            case 'max':
-                m.channel.findOneAndUpdate({
-                        name: socket.whir.channel,
-                        'meta.owner': socket.whir.session
-                    },
-                    { maxUsers: parseInt(input[2], 10) })
-                    .lean()
-                    .exec()
-                    .then(channel => {
-                        data.message = 'Max. users updated.';
-                        if (!channel) {
-                            data.message = 'You can\'t update this channel.';
-                        }
+        case 'max':
+            let maxUsers = Math.abs(parseInt(input[2], 10));
+            if (!maxUsers) {
+                data.message = 'You must provide a valid number.';
+                return whir.send(socket, data);
+            }
 
-                        whir.send(socket, data);
-                    });
-                break;
+            maxUsers = maxUsers < 2 ? 2 : maxUsers;
+            maxUsers = maxUsers > 500 ? 500 : maxUsers;
+            m.channel.findOneAndUpdate({
+                    name: socket.whir.channel,
+                    'meta.owner': socket.whir.session
+                },
+                { maxUsers: maxUsers })
+                .lean()
+                .exec()
+                .then(channel => {
+                    data.message = `Max. users set to _${maxUsers}_.`;
+                    if (!channel) {
+                        data.message = 'You can\'t update this channel.';
+                    }
+
+                    whir.send(socket, data);
+                });
+            break;
 
             case 'private':
                 bcrypt.hash(input[2])
@@ -134,26 +140,25 @@ module.exports = {
                     });
                 break;
 
-            case 'info':
-                m.channel.findOne({ name: socket.whir.channel })
-                    .lean()
-                    .exec()
-                    .then(channel => {
-                        data.message = 'Channel:';
-                        data.payload = {
-                            showTitle: true,
-                            pad: false,
-                            items: {
-                                'Name:': { type: 'string', value: channel.name },
-                                'Description:': { type: 'string', value: channel.description },
-                                'Users online:': { type: 'number', value: channel.connectedUsers.length },
-                                'Max. users:': { type: 'number', value: channel.maxUsers },
-                                'Online since:': { type: 'date', value: channel.meta.createdOn }
-                            }
-                        };
-                        whir.send(socket, data);
-                    });
-                break;
-        }
+        case 'info':
+            m.channel.findOne({ name: socket.whir.channel })
+                .lean()
+                .exec()
+                .then(channel => {
+                    data.message = 'Channel:';
+                    data.payload = {
+                        showTitle: true,
+                        pad: false,
+                        items: {
+                            'Name:': { type: 'string', value: channel.name },
+                            'Description:': { type: 'string', value: channel.description },
+                            'Users online:': { type: 'number', value: channel.connectedUsers.length },
+                            'Max. users:': { type: 'number', value: channel.maxUsers },
+                            'Online since:': { type: 'date', value: channel.meta.createdOn }
+                        }
+                    };
+                    whir.send(socket, data);
+                });
+            break;
     }
 };

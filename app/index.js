@@ -16,6 +16,13 @@ models.on('error', error => {
     process.exit();
 });
 
+/**
+ * Pre-load all existing models so they are available everywhere else
+ * in the application.
+ * If loading succeeds, then continue loading the rest of the application.
+ * This initial load relies on a synchronous call, only acceptable at boot time.
+ * @see models/index.js
+ */
 models.on('loaded', () => {
 
     server.start(wss);
@@ -25,7 +32,8 @@ models.on('loaded', () => {
             res.setHeader('X-POWERED-BY', 'analogbird.com');
             next();
         },
-        router(express)
+        router(express),
+        (req, res) => res.sendStatus(404).end()
     );
 
     app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));

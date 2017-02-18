@@ -24,17 +24,24 @@ module.exports.start = wss => {
             'meta.owner': socket.whir.session
         }};
 
-        co(function* () {
+        co(function * () {
 
             const channel = yield m.channel
                 .findOneAndUpdate({ name: socket.whir.channel }, update, { upsert: true, new: true })
                 .exec();
 
             if (!channel.access.public) {
-                return whir.close(socket, {
-                    message: 'This is a private channel; you need a password.',
-                    channel: socket.whir.channel
-                });
+                if (!socket.whir.password) {
+                    return whir.close(socket, {
+                        message: 'This is a private channel; you need a password.',
+                        channel: socket.whir.channel
+                    });
+                } else if (!(yield bcrypt.compare(socket.whir.password, channel.access.password))) {
+                    return whir.close(socket, {
+                        message: 'Your password does not match this channel\'s.',
+                        channel: socket.whir.channel
+                    });
+                }
             }
 
             const userExists = channel.connectedUsers.find(user => user.user === socket.whir.user);
