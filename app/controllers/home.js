@@ -15,14 +15,15 @@ module.exports = {
 
             data = JSON.parse(data.toString('utf8'));
             if (data.message.match(/^\/[\w]/)) {
-                return commander.run.bind(this, whir)(socket, data.message);
+                const command = commander.run(data.message);
+                return command.message ? whir.send(socket, commander.run(data.message)) : null;
             }
 
-            whir.broadcast(req.app.locals.wss.clients, {
+            whir.broadcast({
                 channel: socket.whir.channel,
                 user: data.user,
                 message: data.message
-            }, socket);
+            }, req.app.locals.wss.clients, socket);
         });
 
         socket.on('close', () => {
@@ -35,14 +36,14 @@ module.exports = {
                 })
                 .exec()
                 .then(() => {
-                    whir.broadcast(req.app.locals.wss.clients, {
+                    whir.broadcast({
                         channel: socket.whir.channel,
                         message: '_:user:_ has left the channel!',
                         action: {
                             method: 'leave',
                             user: socket.whir.user
                         }
-                    }, socket);
+                    }, req.app.locals.wss.clients, socket);
                 });
         });
     }

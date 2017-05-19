@@ -11,7 +11,7 @@ server.start(wss);
 app.locals.wss = wss;
 app.use(
     (req, res, next) => {
-        res.setHeader('X-POWERED-BY', 'analogbird.com');
+        res.setHeader('x-powered-by', 'github.com/aichholzer');
         next();
     },
     _require('router')(express)

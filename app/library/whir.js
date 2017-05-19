@@ -11,7 +11,7 @@ class Whir {
     send (client, data) {
 
         data.user = data.user || this.user;
-        data.channel = data.channel || this.channel;
+        data.channel = data.channel || client.whir.channel || this.channel;
         data.message = data.message.replace(/:([\w]+):/g, (match, property) => {
             if (property === 'user') {
                 return data.action.user || match;
@@ -28,11 +28,11 @@ class Whir {
      * Broadcast a message to all connected clients, except to the
      * one initiating the request, defined by the "currentClient" argument.
      *
+     * @param data - The data being broadcast.
      * @param clients - Current WS clients.
-     * @param data - The data being broadcasted.
-     * @param currentClient - The current client, if any.
+     * @param currentClient - The current client.
      */
-    broadcast (clients, data, currentClient) {
+    broadcast (data, clients, currentClient) {
 
         const channel = data.channel || this.channel;
         for (let client of clients) {

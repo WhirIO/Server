@@ -1,16 +1,14 @@
 'use strict';
 
 
-const m = _require('models');
-
 module.exports = {
 
-    run: (whir, socket, command) => {
+    run: command => {
 
         command = command.replace(/^\//g, '');
-        const data = {};
-
-        data.channel = socket.whir.channel;
+        const data = {
+            message: ''
+        };
         switch (command) {
             case 'help':
                 data.message = 'Available commands:';
@@ -28,8 +26,9 @@ module.exports = {
                     'stats': '',
                     'destroy': ''
                 };
-                whir.send(socket, data);
                 break;
         }
+
+        return data;
     }
 };
