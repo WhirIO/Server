@@ -1,11 +1,20 @@
-'use strict';
 
+const roli = require('roli');
+const controller = require('../../controllers/chat');
 
-const parse = attract('library/parse');
+const setHeaders = (socket, req, next) => {
+  const headers = socket.upgradeReq.headers;
+  socket.current = {
+    channel: headers['x-whir-channel'] || roli({ case: 'lower' }),
+    user: headers['x-whir-user'],
+    password: headers['x-whir-pass'] || null,
+    session: headers['x-whir-session'] || null
+  };
 
-module.exports = (router, control) => {
+  next();
+};
 
-    router.ws('/', parse.headers, control.message);
-
-    return router;
+module.exports = (router) => {
+  router.ws('/', setHeaders, controller.message);
+  return router;
 };

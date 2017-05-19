@@ -1,57 +1,62 @@
-'use strict';
 
+const config = require('../config');
+const Emitter = require('events');
+const fs = require('fs');
+const mongoose = require('mongoose');
 
-const [
-    fs,
-    events,
-    mongoose,
-    util,
-    config
-] = attract('fs', 'events', 'mongoose', 'util', 'config');
-const Models = function () {
+class Models extends Emitter {
+
+  constructor() {
+    super();
     this.schemas = {};
-    events.EventEmitter.call(this);
-};
+  }
 
-/**
- * Load all existing models.
- * Should be called only at boot time.
- */
-Models.prototype.load = function () {
-
+  /**
+   * Load all existing models.
+   * Should be called only at boot time.
+   */
+  load() {
     mongoose.Promise = global.Promise;
     mongoose.connect(config.mongo.url, config.mongo.options);
     mongoose.connection.on('error', () => {
-        this.emit('error', 'I can\'t connect to the DB.');
+      this.emit('error', 'I can\'t connect to the database.');
     });
 
     const schemaPath = `${__dirname}/schemas/`;
-    fs.readdirSync(schemaPath).forEach(file => {
-        if (file.match(/(.+)\.js$/)) {
-            try {
-                this.schemas[file.replace('.js', '')] = attract(schemaPath + file)(mongoose);
-            } catch (error) {
-                this.emit('error', `I can\'t load model: ${file}`);
-            }
+    fs.readdirSync(schemaPath).forEach((file) => {
+      if (file.match(/(.+)\.js$/)) {
+        try {
+          const schema = require.call(null, `${schemaPath}${file}`);
+          this.schemas[file.replace('.js', '')] = schema(mongoose);
+        } catch (error) {
+          this.emit('error', `I can't load model: ${error.stack}`);
         }
+      }
     });
 
     this.emit('loaded');
-};
+  }
 
-/**
- * Get any model, available after boot.
- * @see Models.prototype.load()
- */
-Models.prototype.get = function (schema) {
-
+  /**
+   * Get any model, available after boot.
+   * @see Models.load()
+   */
+  get(schema) {
     const loadedSchema = this.schemas[schema];
     if (!loadedSchema) {
-        return this.emit('error', `A model for "${schema}" does not exist.`);
+      return this.emit('error', `The "${schema}" model does not exist.`);
     }
 
     return loadedSchema;
-};
+  }
+}
 
-util.inherits(Models, events.EventEmitter);
-module.exports = new Models();
+module.exports = new Proxy(new Models(), {
+  get: (target, name) => {
+    if (target.schemas[name]) {
+      return target.schemas[name];
+    }
+
+    return target[name];
+  }
+});

@@ -1,41 +1,34 @@
-'use strict';
 
-
-const [whir, commander, models] = attract('library/whir', 'library/commander', 'models');
-const m = models.schemas;
+const commander = require('../core/commander');
+const m = require('../models');
 
 module.exports.message = (socket, req) => {
+  socket.on('message', async (data) => {
+    try {
+      let parsedData = JSON.parse(data.toString('utf8'));
+      if (parsedData.message.match(/^\/[\w]/)) {
+        parsedData = await commander.run(socket.current, parsedData.message);
+        return req.app.locals.socket.send(parsedData, socket);
+      }
 
-    socket.on('message', data => {
+      req.app.locals.socket.broadcast(parsedData, socket);
+    } catch (error) {
+      console.error(error.message);
+    }
 
-        data = JSON.parse(data.toString('utf8'));
-        if (data.message.match(/^\/[\w]/)) {
-            return commander.run.bind(this, whir)(socket, data.message);
-        }
+    return true;
+  });
 
-        whir.broadcast(req.app.locals.wss.clients, {
-            channel: socket.whir.channel,
-            user: data.user,
-            message: data.message
-        }, socket);
-    });
+  socket.on('close', async () => {
+    if (!socket.current) {
+      return;
+    }
 
-    socket.on('close', () => {
-        if (!socket.whir) {
-            return;
-        }
-
-        m.channel.findOneAndUpdate({ name: socket.whir.channel }, {
-                $pull: { connectedUsers: { user: socket.whir.user } }
-            })
-            .exec()
-            .then(() => {
-                whir.broadcast(req.app.locals.wss.clients, {
-                    channel: socket.whir.channel,
-                    user: socket.whir.user,
-                    message: '-I left the channel.-',
-                    action: 'leave'
-                }, socket);
-            });
-    });
+    await m.channel.removeUser(socket.current);
+    req.app.locals.socket.broadcast({
+      user: socket.current.user,
+      message: '-left the channel.-',
+      action: 'leave'
+    }, socket);
+  });
 };
