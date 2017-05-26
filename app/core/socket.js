@@ -41,7 +41,7 @@ class Socket extends Whir {
           }).filter(user => user)
       }, socket);
 
-      this.broadcast({ message: '-joined the channel.-', action: 'join' }, socket);
+      this.broadcast({ message: '-I joined the channel.-', action: 'join' }, socket);
 
       return true;
     });
