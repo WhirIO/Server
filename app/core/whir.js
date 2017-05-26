@@ -20,12 +20,14 @@ class Whir {
    * @param client - The current client.
    */
   broadcast(data, client) {
-    this.wss.clients.forEach((socket) => {
-      if (socket.current.channel === client.current.channel && socket !== client) {
-        data.user = client.current.user;
-        this.send(data, socket);
-      }
-    });
+    if (this.wss.clients) {
+      this.wss.clients.forEach((socket) => {
+        if (socket.current.channel === client.current.channel && socket !== client) {
+          data.user = client.current.user;
+          this.send(data, socket);
+        }
+      });
+    }
   }
 
   close(data, client) {

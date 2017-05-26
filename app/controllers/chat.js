@@ -27,7 +27,7 @@ module.exports.message = (socket, req) => {
     await m.channel.removeUser(socket.current);
     req.app.locals.socket.broadcast({
       user: socket.current.user,
-      message: '-left the channel.-',
+      message: '-I left the channel.-',
       action: 'leave'
     }, socket);
   });
