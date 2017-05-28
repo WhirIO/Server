@@ -1,4 +1,3 @@
-
 const chat = require('./routes/chat');
 
 module.exports = (express) => {

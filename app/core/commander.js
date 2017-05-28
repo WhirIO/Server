@@ -1,6 +1,26 @@
-
 const bcrypt = require('bcrypt');
+const redis = require('redis');
 const m = require('../models');
+
+const redisClient = redis.createClient();
+const getStats = channel => new Promise((yes, no) => {
+  redisClient.zrevrange(channel, 0, 1, 'withscores', (error, data) => {
+    if (error) {
+      return no(error);
+    }
+
+    const response = {};
+    for (let item = 0; item < data.length; item += 2) {
+      if (data[item] !== 'channelMessages') {
+        response.mostActive = data[item];
+      }
+
+      response[data[item]] = data[item + 1];
+    }
+
+    return yes(response);
+  });
+});
 
 class Commander {
 
@@ -45,27 +65,22 @@ class Commander {
 
   async stats() {
     const channel = await m.channel.fetch({ channel: this.channel });
+    const stats = await getStats(this.channel);
     this.data.message = 'Channel statistics:';
     this.data.payload = {
       showTitle: true,
       pad: '+2',
       items: {
         'Name:': { type: 'string', value: channel.name },
+        'Description:': { type: 'string', value: channel.description || '...' },
         'Public:': { type: 'string', value: channel.access.public ? 'Yes' : 'No' },
         'Users online:': { type: 'number', value: channel.connectedUsers.length },
         'Users allowed:': { type: 'number', value: channel.maxUsers },
         'Online since:': { type: 'date', value: channel.meta.createdOn },
-        'Messages sent:': { type: 'number', value: 4536 },
-        'Most active user:': { type: 'string', value: 'James' }
+        'Messages sent:': { type: 'number', value: stats.channelMessages || 0 },
+        'Most active user:': { type: 'string', value: `${stats.mostActive} (${stats[stats.mostActive]})` }
       }
     };
-
-    if (channel.description) {
-      this.data.payload.items.Description = {
-        type: 'string',
-        value: channel.description
-      };
-    }
   }
 
   async find() {

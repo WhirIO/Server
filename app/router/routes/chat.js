@@ -1,4 +1,3 @@
-
 const roli = require('roli');
 const controller = require('../../controllers/chat');
 

@@ -1,4 +1,3 @@
-
 const config = require('../config');
 const Emitter = require('events');
 const fs = require('fs');

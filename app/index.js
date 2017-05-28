@@ -1,9 +1,8 @@
-
 const express = require('express');
 const ews = require('express-ws');
 const models = require('./models');
 const router = require('./router');
-const Socket = require('./core/socket');
+const Whir = require('./core/whir');
 
 const app = express();
 models.on('error', (error) => {
@@ -18,7 +17,7 @@ models.on('error', (error) => {
  * @see models/index.js
  */
 models.on('loaded', () => {
-  app.locals.socket = new Socket(ews(app).getWss());
+  app.locals.whir = new Whir(ews(app).getWss());
   app.use(
         (req, res, next) => {
           res.setHeader('x-powered-by', 'github.com/aichholzer');

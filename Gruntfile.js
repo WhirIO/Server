@@ -1,4 +1,3 @@
-
 require('dotenv').load();
 
 module.exports = (grunt) => {
