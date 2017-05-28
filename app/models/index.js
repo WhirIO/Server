@@ -1,12 +1,9 @@
-const config = require('../config');
-const Emitter = require('events');
 const fs = require('fs');
 const mongoose = require('mongoose');
 
-class Models extends Emitter {
+class Models {
 
   constructor() {
-    super();
     this.schemas = {};
   }
 
@@ -14,39 +11,43 @@ class Models extends Emitter {
    * Load all existing models.
    * Should be called only at boot time.
    */
-  load() {
-    mongoose.Promise = global.Promise;
-    mongoose.connect(config.mongo.url, config.mongo.options);
-    mongoose.connection.on('error', () => {
-      this.emit('error', 'I can\'t connect to the database.');
-    });
+  load({ url, options }) {
+    return new Promise((yes, no) => {
+      mongoose.Promise = global.Promise;
+      mongoose.connect(url, options);
+      mongoose.connection.on('error', () => no('I can\'t connect to the database.'));
 
-    const schemaPath = `${__dirname}/schemas/`;
-    fs.readdirSync(schemaPath).forEach((file) => {
-      if (file.match(/(.+)\.js$/)) {
-        try {
-          const schema = require.call(null, `${schemaPath}${file}`);
-          this.schemas[file.replace('.js', '')] = schema(mongoose);
-        } catch (error) {
-          this.emit('error', `I can't load model: ${error.stack}`);
+      const schemaPath = `${__dirname}/schemas/`;
+      fs.readdirSync(schemaPath).forEach((file) => {
+        if (file.match(/(.+)\.js$/)) {
+          try {
+            const schema = require.call(null, `${schemaPath}${file}`);
+            this.schemas[file.replace('.js', '')] = schema(mongoose);
+          } catch (error) {
+            return no(`I can't load model: ${error.stack}`);
+          }
         }
-      }
-    });
 
-    this.emit('loaded');
+        return true;
+      });
+
+      return yes();
+    });
   }
 
   /**
    * Get any model, available after boot.
    * @see Models.load()
    */
-  get(schema) {
-    const loadedSchema = this.schemas[schema];
-    if (!loadedSchema) {
-      return this.emit('error', `The "${schema}" model does not exist.`);
-    }
+  get(model) {
+    return new Promise((yes, no) => {
+      const loadedModel = this.schemas[model];
+      if (!loadedModel) {
+        return no(`The "${model}" model does not exist.`);
+      }
 
-    return loadedSchema;
+      return yes(loadedModel);
+    });
   }
 }
 

@@ -1,33 +1,21 @@
-const express = require('express');
-const ews = require('express-ws');
-const models = require('./models');
-const router = require('./router');
+const config = require('./config');
+const m = require('./models');
 const Whir = require('./core/whir');
 
-const app = express();
-models.on('error', (error) => {
+/**
+ * Pre-load the models, then boot the application.
+ * @see models/index.js
+ */
+m.load(config.mongo).then(() => {
+  const whir = new Whir({ port: process.env.PORT });
+  whir.on('info', (message) => {
+    console.log(message);
+  });
+
+  whir.on('error', (message) => {
+    console.error(message);
+  });
+}).catch((error) => {
   console.error(error);
   process.exit();
 });
-
-/**
- * Pre-load all existing models so they are available everywhere else in the application.
- * If loading succeeds, then continue loading the rest of the application.
- * This initial load relies on a synchronous call, only acceptable at boot time.
- * @see models/index.js
- */
-models.on('loaded', () => {
-  app.locals.whir = new Whir(ews(app).getWss());
-  app.use(
-        (req, res, next) => {
-          res.setHeader('x-powered-by', 'github.com/aichholzer');
-          next();
-        },
-        router(express),
-        (req, res) => res.sendStatus(404).end()
-    );
-
-  app.listen(process.env.PORT, () => console.log(`Listening: ${process.env.PORT}`));
-});
-
-models.load();

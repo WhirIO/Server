@@ -7,8 +7,11 @@ module.exports = (grunt) => {
         script: 'app/index.js',
         options: {
           callback: (nodemon) => {
+            console.log();
             nodemon.on('log', (event) => {
-              console.log(event.colour);
+              if (event.type === 'status') {
+                console.log(`✔︎ ${event.colour}`);
+              }
             });
           },
           env: {

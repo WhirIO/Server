@@ -1,22 +1,29 @@
 const bcrypt = require('bcrypt');
+const commander = require('./commander');
+const Emitter = require('events').EventEmitter;
 const m = require('../models');
 const redis = require('redis');
+const roli = require('roli');
+const WS = require('ws');
 
-class Whir {
+class Whir extends Emitter {
 
-  constructor(wss) {
-    this.wss = wss;
+  constructor({ port }) {
+    super();
+
+    this.wss = new WS.Server({ port });
     this.redis = redis.createClient();
     this.redis.on('error', () => {
       this.redis = null;
     });
 
-    this.socketEvents(wss);
-    return this;
+    this.serverEvents();
   }
 
-  socketEvents(wss) {
-    wss.on('connection', async (socket) => {
+  serverEvents() {
+    this.wss.on('connection', async (socket, req) => {
+      this.socketEvents(socket, req);
+
       if (!socket.current.session) {
         return this.close('You need a valid session.', socket);
       }
@@ -55,15 +62,55 @@ class Whir {
       return true;
     });
 
-    wss.on('close', (socket) => {
-      console.log('Socket closed', socket);
+    this.wss.on('close', (socket) => {
+      this.emit('info', `A socket has been closed: ${socket}`);
+    });
+  }
+
+  socketEvents(socket, req) {
+    socket.current = {
+      channel: req.headers['x-whir-channel'] || roli({ case: 'lower' }),
+      user: req.headers['x-whir-user'],
+      password: req.headers['x-whir-pass'] || null,
+      session: req.headers['x-whir-session'] || null
+    };
+
+    socket.on('message', async (data) => {
+      try {
+        let parsedData = JSON.parse(data.toString('utf8'));
+        if (parsedData.message.match(/^\/[\w]/)) {
+          parsedData = await commander.run(socket.current, parsedData.message);
+          return this.send(parsedData, socket);
+        }
+
+        return this.broadcast(parsedData, socket);
+      } catch (error) {
+        return this.emit('error', `Incoming message: ${error.message}`);
+      }
+    });
+
+    socket.on('close', async () => {
+      if (!socket.current) {
+        return;
+      }
+
+      await m.channel.removeUser(socket.current);
+      this.broadcast({
+        user: socket.current.user,
+        message: '-I left the channel.-',
+        action: 'leave'
+      }, socket);
     });
   }
 
   send(data, client) {
     data.channel = client.current.channel;
     data.message = data.message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
-    client.send(JSON.stringify(data), { binary: true, mask: true });
+    client.send(JSON.stringify(data), { binary: true, mask: true }, (error) => {
+      if (error) {
+        this.emit('error', `Outgoing message: ${error.message}`);
+      }
+    });
     return this;
   }
 
