@@ -4,27 +4,39 @@ const Emitter = require('events').EventEmitter;
 const m = require('../models');
 const redis = require('redis');
 const roli = require('roli');
-const WS = require('ws');
+const WS = require('uws');
 
 class Whir extends Emitter {
 
-  constructor({ port }) {
+  constructor({ port, redisConf }) {
     super();
 
     this.wss = new WS.Server({ port }, () => {
-      this.emit('info', `Whir listens: ${port}`);
-    });
-    this.redis = redis.createClient();
-    this.redis.on('error', () => {
-      this.redis = null;
+      this.emit('info', `Whir: Listening on port ${port}`);
     });
 
-    this.serverEvents();
+    try {
+      this.redis = redis.createClient(redisConf.url || redisConf);
+      this.redis.prefix = redisConf.prefix;
+      this.redis.on('error', (error) => {
+        const message = error.origin ? error.origin.message : error.message;
+        this.emit('error', `Redis: ${message}`);
+      });
+
+      this.redis.on('warning', (error) => {
+        this.emit('warning', error);
+      });
+
+      commander.redis = this.redis;
+      this.serverEvents();
+    } catch (error) {
+      this.emit('error', `Redis: ${error.message}`);
+    }
   }
 
   serverEvents() {
-    this.wss.on('connection', async (socket, req) => {
-      this.socketEvents(socket, req);
+    this.wss.on('connection', async (socket) => {
+      this.socketEvents(socket);
 
       if (!socket.current.session) {
         return this.close('You need a valid session.', socket);
@@ -69,17 +81,18 @@ class Whir extends Emitter {
     });
   }
 
-  socketEvents(socket, req) {
+  socketEvents(socket) {
     socket.current = {
-      channel: req.headers['x-whir-channel'] || roli({ case: 'lower' }),
-      user: req.headers['x-whir-user'],
-      password: req.headers['x-whir-pass'] || null,
-      session: req.headers['x-whir-session'] || null
+      channel: socket.upgradeReq.headers['x-whir-channel'] || roli({ case: 'lower' }),
+      user: socket.upgradeReq.headers['x-whir-user'],
+      password: socket.upgradeReq.headers['x-whir-pass'] || null,
+      session: socket.upgradeReq.headers['x-whir-session'] || null
     };
 
     socket.on('message', async (data) => {
       try {
-        let parsedData = JSON.parse(data.toString('utf8'));
+        const payload = Buffer.from(data).toString('utf8');
+        let parsedData = JSON.parse(payload);
         if (parsedData.message.match(/^\/[\w]/)) {
           parsedData = await commander.run(socket.current, parsedData.message);
           return this.send(parsedData, socket);
@@ -117,7 +130,7 @@ class Whir extends Emitter {
   }
 
   /**
-   * Broadcast a message to all connected clients, except to the
+   * Broadcast a message to all connected clients, except the
    * one initiating the request.
    *
    * @param data - The data being broadcast.

@@ -1,7 +1,7 @@
 {
   "name": "whir.io",
-  "version": "1.0.1",
-  "description": "The whir.io chat server.",
+  "version": "1.1.0",
+  "description": "The whir.io chat server. [alpha]",
   "keywords": [],
   "author": {
     "name": "Stefan Aichholzer",
@@ -18,12 +18,10 @@
   },
   "dependencies": {
     "bcrypt": "^1.0.2",
-    "bufferutil": "^3.0.0",
     "mongoose": "^4.10.2",
     "redis": "^2.7.1",
     "roli": "^0.2.1",
-    "utf-8-validate": "^3.0.1",
-    "ws": "^3.0.0"
+    "uws": "^0.14.5"
   },
   "devDependencies": {
     "dotenv": "^4.0.0",
@@ -33,5 +31,9 @@
     "grunt": "^1.0.1",
     "grunt-eslint": "^19.0.0",
     "grunt-nodemon": "^0.4.2"
+  },
+  "scripts": {
+    "local": "node -r dotenv/config ./app/index.js",
+    "start": "node ./app/index.js"
   }
 }

@@ -1,10 +1,8 @@
 const bcrypt = require('bcrypt');
-const redis = require('redis');
 const m = require('../models');
 
-const redisClient = redis.createClient();
-const getStats = channel => new Promise((yes, no) => {
-  redisClient.zrevrange(channel, 0, 1, 'withscores', (error, data) => {
+const getStats = (channel, redis) => new Promise((yes, no) => {
+  redis.zrevrange(channel, 0, 1, 'withscores', (error, data) => {
     if (error) {
       return no(error);
     }
@@ -65,7 +63,7 @@ class Commander {
 
   async stats() {
     const channel = await m.channel.fetch({ channel: this.channel });
-    const stats = await getStats(this.channel);
+    const stats = await getStats(this.channel, this.redis);
     this.data.message = 'Channel statistics:';
     this.data.payload = {
       showTitle: true,
