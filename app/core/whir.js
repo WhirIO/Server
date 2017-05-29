@@ -11,7 +11,9 @@ class Whir extends Emitter {
   constructor({ port }) {
     super();
 
-    this.wss = new WS.Server({ port });
+    this.wss = new WS.Server({ port }, () => {
+      this.emit('info', `Whir listens: ${port}`);
+    });
     this.redis = redis.createClient();
     this.redis.on('error', () => {
       this.redis = null;
