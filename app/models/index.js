@@ -1,36 +1,62 @@
-'use strict';
-
-
 const fs = require('fs');
 const mongoose = require('mongoose');
-const config = _require('config');
-const schemaPath = __dirname + '/schemas/';
-const mongo = config.mongo;
 
-let loadedModels = null;
+class Models {
 
-module.exports = (function () {
+  constructor() {
+    this.schemas = {};
+  }
 
-    if (!loadedModels) {
+  /**
+   * Load all existing models.
+   * Should be called only at boot time.
+   */
+  load({ url, options }) {
+    return new Promise((yes, no) => {
+      mongoose.Promise = global.Promise;
+      mongoose.connect(url, options);
+      mongoose.connection.on('error', () => no('I can\'t connect to the database.'));
 
-        mongoose.connect(mongo.url, mongo.options);
-        mongoose.connection.on('error', console.error.bind(console, 'DB connection error:'));
-        mongoose.Promise = global.Promise;
+      const schemaPath = `${__dirname}/schemas/`;
+      fs.readdirSync(schemaPath).forEach((file) => {
+        if (file.match(/(.+)\.js$/)) {
+          try {
+            const schema = require.call(null, `${schemaPath}${file}`);
+            this.schemas[file.replace('.js', '')] = schema(mongoose);
+          } catch (error) {
+            return no(`I can't load model: ${error.stack}`);
+          }
+        }
 
-        loadedModels = {};
-        fs.readdirSync(schemaPath).forEach(file => {
-            if (file.match(/(.+)\.js?$/)) {
-                fs.stat(schemaPath + file, err => {
-                    if (!err) {
-                        loadedModels[file.replace('.js', '')] = require(schemaPath + file)(mongoose);
-                    } else {
-                        console.error('I was not able to find the', file, 'model.');
-                    }
-                });
-            }
-        });
+        return true;
+      });
+
+      return yes();
+    });
+  }
+
+  /**
+   * Get any model, available after boot.
+   * @see Models.load()
+   */
+  get(model) {
+    return new Promise((yes, no) => {
+      const loadedModel = this.schemas[model];
+      if (!loadedModel) {
+        return no(`The "${model}" model does not exist.`);
+      }
+
+      return yes(loadedModel);
+    });
+  }
+}
+
+module.exports = new Proxy(new Models(), {
+  get: (target, name) => {
+    if (target.schemas[name]) {
+      return target.schemas[name];
     }
 
-    loadedModels.objectId = mongoose.Types.ObjectId;
-    return loadedModels;
-}());
+    return target[name];
+  }
+});
