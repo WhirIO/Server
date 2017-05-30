@@ -1,0 +1,32 @@
+{
+  "name": "whir.io",
+  "description": "The whir.io chat server. [alpha]",
+  "repository": "https://github.com/WhirIO/Server",
+  "logo": "https://github.com/WhirIO/Server/raw/master/media/whir.png",
+  "website": "https://whir.io",
+  "success_url": "/",
+  "keywords": [
+    "chat",
+    "command",
+    "cli",
+    "socket",
+    "websocket",
+    "interface"
+  ],
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGO"
+    },
+    {
+      "plan": "heroku-redis:hobby-dev",
+      "as": "REDIS"
+    }
+  ],
+  "env": {
+    "REDIS_PREFIX": {
+      "description": "Prefix for redis keys.",
+      "value": "WHIR"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "Whir.io",
-  "version": "1.0.0",
-  "description": "The whir.io chat server.",
+  "name": "whir.io",
+  "version": "1.1.0",
+  "description": "The whir.io chat server. [alpha]",
   "keywords": [],
   "author": {
     "name": "Stefan Aichholzer",
@@ -14,26 +14,26 @@
     "url": "https://github.com/WhirIO/Server"
   },
   "engines": {
-    "node": "6.2.x"
+    "node": ">=7.10"
   },
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "bufferutil": "^1.2.1",
-    "compression": "^1.6.2",
-    "express": "^4.14.0",
-    "express-ws": "^2.0.0",
-    "mongoose": "^4.6.5",
+    "bcrypt": "^1.0.2",
+    "mongoose": "^4.10.2",
+    "redis": "^2.7.1",
     "roli": "^0.2.1",
-    "serve-favicon": "^2.3.0",
-    "utf-8-validate": "^1.2.1"
+    "uws": "^0.14.5"
   },
   "devDependencies": {
-    "dotenv": "^2.0.0",
+    "dotenv": "^4.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.3.0",
     "grunt": "^1.0.1",
-    "grunt-contrib-jshint": "^1.0.0",
-    "grunt-jscs": "^3.0.1",
-    "grunt-nodemon": "^0.4.2",
-    "jscs": "^3.0.7",
-    "jshint": "^2.9.3"
+    "grunt-eslint": "^19.0.0",
+    "grunt-nodemon": "^0.4.2"
+  },
+  "scripts": {
+    "local": "node -r dotenv/config ./app/index.js",
+    "start": "node ./app/index.js"
   }
 }
