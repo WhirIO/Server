@@ -5,6 +5,7 @@
   <a href="http://whir.io"><img src="media/whir.png" alt="whir.io" width="420" /></a>
 </p>
 
+
 ### Installation
 
 - Clone this repository (navigate to its location),
@@ -25,10 +26,12 @@ Start chatting as soon as your Heroku instance is deployed:
 * connect to your server: `whir.io -u [username] -h [your Heroku URL]`,
 * enjoy!
 
+
 ### Notes
 As you may have noticed, **whir** does not implement an actual HTTPS server, this is because **whir** was mainly written to run on Heroku and Heroku's SSL termination occurs at its load balancers; thus the application remains a non-HTTPS server.
 
 Visit [https://whir.io](https://whir.io) for more information.
+
 
 ### Contribute
 ```

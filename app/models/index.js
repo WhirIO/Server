@@ -12,10 +12,13 @@ class Models {
    * Should be called only at boot time.
    */
   load({ url, options }) {
-    return new Promise((yes, no) => {
-      mongoose.Promise = global.Promise;
-      mongoose.connect(url, options);
-      mongoose.connection.on('error', () => no('I can\'t connect to the database.'));
+    return new Promise(async (yes, no) => {
+      try {
+        mongoose.Promise = global.Promise;
+        await mongoose.connect(url, options);
+      } catch (error) {
+        return no('I can\'t connect to the database server.');
+      }
 
       const schemaPath = `${__dirname}/schemas/`;
       fs.readdirSync(schemaPath).forEach((file) => {
