@@ -28,12 +28,17 @@ class Commander {
     this.channel = channel;
     const match = input.match(/^\/([\w]+)\s?(.*)?/);
 
+    let command;
     try {
-      const command = match[1];
+      command = match[1];
       this.query = match[2];
       await this[command]();
     } catch (error) {
-      this.data.message = error.message;
+      if (error.message.endsWith('not a function')) {
+        this.data.message = `${command} is not a valid command.`;
+      } else {
+        this.data.message = error.message;
+      }
     }
 
     return this.data;
