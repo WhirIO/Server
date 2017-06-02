@@ -6,6 +6,17 @@ const redis = require('redis');
 const roli = require('roli');
 const WS = require('uws');
 
+const closeSocket = (data, socket) => {
+  if (typeof data === 'string') {
+    data = { message: data };
+  }
+
+  data.channel = socket.current.channel;
+  data.message = data.message.replace(/:([\w]+):/g, (match, property) => socket.current[property] || match);
+  socket.close(1011, JSON.stringify(data));
+  socket.current = null;
+};
+
 class Whir extends Emitter {
 
   constructor({ port, redisConf }) {
@@ -39,24 +50,29 @@ class Whir extends Emitter {
       this.socketEvents(socket);
 
       if (!socket.current.session) {
-        return this.close('You need a valid session.', socket);
+        return closeSocket('You need a valid session.', socket);
       }
 
+      const plainPassword = socket.current.password;
+      socket.current.password = socket.current.password ? await bcrypt.hash(socket.current.password, 12) : null;
       const channel = await m.channel.connect(socket.current);
       if (channel.connectedUsers.length === channel.maxUsers) {
-        return this.close('This channel does not accept more users.', socket);
+        return closeSocket('This channel does not accept more users.', socket);
       }
 
-      if (!channel.access.public) {
+      if (channel.password) {
         if (!socket.current.password) {
-          return this.close('This is a private channel; you need a password.', socket);
-        } else if (!(await bcrypt.compare(socket.current.password, channel.access.password))) {
-          return this.close('Your password does not match this channel\'s.', socket);
+          return closeSocket('This is a private channel; you need a password.', socket);
+        }
+
+        const match = await bcrypt.compare(plainPassword, channel.password);
+        if (!match) {
+          return closeSocket('Your password does not match this channel\'s.', socket);
         }
       }
 
       if (channel.connectedUsers.find(user => user.user === socket.current.user)) {
-        return this.close('This username (:user:) is already in use in this channel.', socket);
+        return closeSocket('This username (:user:) is already in use in this channel.', socket);
       }
 
       channel.connectedUsers.push(socket.current);
@@ -150,18 +166,6 @@ class Whir extends Emitter {
         }
       });
     }
-  }
-
-  close(data, client) {
-    if (typeof data === 'string') {
-      data = { message: data };
-    }
-
-    data.channel = client.current.channel;
-    data.message = data.message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
-    client.close(1011, JSON.stringify(data));
-    client.current = null;
-    this.wss = null;
   }
 }
 

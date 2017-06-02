@@ -35,15 +35,9 @@ module.exports = (mongoose) => {
           }
         }
       ],
-      access: {
-        public: {
-          type: Boolean,
-          default: true
-        },
-        password: {
-          type: String,
-          default: null
-        }
+      password: {
+        type: String,
+        default: null
       },
       meta: {
         owner: {
@@ -60,19 +54,20 @@ module.exports = (mongoose) => {
       strict: true,
       versionKey: false
     }
-    );
+  );
 
   schema.statics = {
 
-    connect({ channel = null, session = null }) {
+    connect({ channel = null, session = null, password = null }) {
       return this.findOneAndUpdate(
-                { name: channel },
+        { name: channel },
         { $setOnInsert: {
           name: channel,
-          'meta.owner': session
+          'meta.owner': session,
+          password
         } },
-                { upsert: true, new: true }
-            ).exec();
+        { upsert: true, new: true }
+      ).exec();
     },
 
     fetch({ channel = null }) {

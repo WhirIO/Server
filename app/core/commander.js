@@ -76,7 +76,7 @@ class Commander {
       items: {
         'Name:': { type: 'string', value: channel.name },
         'Description:': { type: 'string', value: channel.description || '...' },
-        'Public:': { type: 'string', value: channel.access.public ? 'Yes' : 'No' },
+        'Public:': { type: 'string', value: channel.password ? 'Yes' : 'No' },
         'Users online:': { type: 'number', value: channel.connectedUsers.length },
         'Users allowed:': { type: 'number', value: channel.maxUsers },
         'Online since:': { type: 'date', value: channel.meta.createdOn },
