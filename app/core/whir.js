@@ -15,6 +15,35 @@ const closeSocket = (data, socket) => {
   data.message = data.message.replace(/:([\w]+):/g, (match, property) => socket.current[property] || match);
   socket.close(1011, JSON.stringify(data));
   socket.current = null;
+  return null;
+};
+const socketState = async (socket, channel) => {
+  if (!socket.current.session) {
+    return closeSocket('You need a valid session.', socket);
+  }
+
+  const plainPassword = socket.current.password;
+  socket.current.password = socket.current.password ? await bcrypt.hash(socket.current.password, 12) : null;
+  if (channel.connectedUsers.length === channel.maxUsers) {
+    return closeSocket('This channel does not accept more users.', socket);
+  }
+
+  if (channel.password) {
+    if (!socket.current.password) {
+      return closeSocket('This is a private channel; you need a password.', socket);
+    }
+
+    const match = await bcrypt.compare(plainPassword, channel.password);
+    if (!match) {
+      return closeSocket('Your password does not match this channel\'s.', socket);
+    }
+  }
+
+  if (channel.connectedUsers.find(user => user.user === socket.current.user)) {
+    return closeSocket('This username (:user:) is already in use in this channel.', socket);
+  }
+
+  return true;
 };
 
 class Whir extends Emitter {
@@ -48,31 +77,9 @@ class Whir extends Emitter {
   serverEvents() {
     this.wss.on('connection', async (socket) => {
       this.socketEvents(socket);
-
-      if (!socket.current.session) {
-        return closeSocket('You need a valid session.', socket);
-      }
-
-      const plainPassword = socket.current.password;
-      socket.current.password = socket.current.password ? await bcrypt.hash(socket.current.password, 12) : null;
       const channel = await m.channel.connect(socket.current);
-      if (channel.connectedUsers.length === channel.maxUsers) {
-        return closeSocket('This channel does not accept more users.', socket);
-      }
-
-      if (channel.password) {
-        if (!socket.current.password) {
-          return closeSocket('This is a private channel; you need a password.', socket);
-        }
-
-        const match = await bcrypt.compare(plainPassword, channel.password);
-        if (!match) {
-          return closeSocket('Your password does not match this channel\'s.', socket);
-        }
-      }
-
-      if (channel.connectedUsers.find(user => user.user === socket.current.user)) {
-        return closeSocket('This username (:user:) is already in use in this channel.', socket);
+      if (!(await socketState(socket, channel))) {
+        return null;
       }
 
       channel.connectedUsers.push(socket.current);
@@ -105,21 +112,7 @@ class Whir extends Emitter {
       session: socket.upgradeReq.headers['x-whir-session'] || null
     };
 
-    socket.on('message', async (data) => {
-      try {
-        const payload = Buffer.from(data).toString('utf8');
-        let parsedData = JSON.parse(payload);
-        if (parsedData.message.match(/^\/[\w]/)) {
-          parsedData = await commander.run(socket.current, parsedData.message);
-          return this.send(parsedData, socket);
-        }
-
-        return this.broadcast(parsedData, socket);
-      } catch (error) {
-        return this.emit('error', `Incoming message: ${error.message}`);
-      }
-    });
-
+    socket.on('message', this.messageHandler.bind(this, socket));
     socket.on('close', async () => {
       if (!socket.current) {
         return;
@@ -132,6 +125,21 @@ class Whir extends Emitter {
         action: 'leave'
       }, socket);
     });
+  }
+
+  async messageHandler(socket, data) {
+    try {
+      const payload = Buffer.from(data).toString('utf8');
+      let parsedData = JSON.parse(payload);
+      if (parsedData.message.match(/^\/[\w]/)) {
+        parsedData = await commander.run(socket.current, parsedData.message);
+        return this.send(parsedData, socket);
+      }
+
+      return this.broadcast(parsedData, socket);
+    } catch (error) {
+      return this.emit('error', `Incoming message: ${error.message}`);
+    }
   }
 
   send(data, client) {
