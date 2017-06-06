@@ -2,21 +2,22 @@ const bcrypt = require('bcrypt');
 const m = require('../models');
 
 const getStats = (channel, redis) => new Promise((yes, no) => {
-  redis.zrevrange(channel, 0, 1, 'withscores', (error, data) => {
-    if (error) {
-      return no(error);
-    }
-
+  const process = (data) => {
     const response = {};
     for (let item = 0; item < data.length; item += 2) {
       if (data[item] !== 'channelMessages') {
         response.mostActive = data[item];
       }
-
       response[data[item]] = data[item + 1];
     }
+    return response;
+  };
 
-    return yes(response);
+  redis.zrevrange(channel, 0, 1, 'withscores', (error, data) => {
+    if (error) {
+      return no(error);
+    }
+    return yes(process(data));
   });
 });
 
