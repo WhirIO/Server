@@ -1,10 +1,17 @@
-[![Dependency status](https://gemnasium.com/badges/github.com/WhirIO/Server.svg)](https://gemnasium.com/github.com/WhirIO/Server)
-[![Alpha](https://img.shields.io/badge/status-alpha-8456AC.svg)](https://github.com/WhirIO/Server)
-
 <p align="center">
-  <a href="http://whir.io"><img src="media/whir.png" alt="whir.io" width="420" /></a>
+👏🏻 😎 🚀 😻
 </p>
 
+<p align="center">
+  <a href="http://whir.io"><img src="https://raw.githubusercontent.com/WhirIO/Client/master/media/whir.png" alt="whir.io" width="420" /></a>
+</p>
+<p>&nbsp;</p>
+
+[![Alpha](https://img.shields.io/badge/status-alpha-8456AC.svg)](https://github.com/WhirIO/Server)
+[![ES7](https://img.shields.io/badge/JavaScript-ES7-00008B.svg)](https://github.com/WhirIO/Client)
+[![codebeat badge](https://codebeat.co/badges/1d85b45c-e41f-4c79-a03b-e940c0fae789)](https://codebeat.co/projects/github-com-whirio-server-master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/41fa5739711e4b019ee55a2e94d7b5b0)](https://www.codacy.com/app/aichholzer/Server?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=WhirIO/Server&amp;utm_campaign=Badge_Grade)
+[![Dependency status](https://gemnasium.com/badges/github.com/WhirIO/Server.svg)](https://gemnasium.com/github.com/WhirIO/Server)
 
 ### Installation
 
