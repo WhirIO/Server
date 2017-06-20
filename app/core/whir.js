@@ -6,13 +6,14 @@ const redis = require('redis');
 const roli = require('roli');
 const WS = require('uws');
 
+const reg = (message, client) => message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
 const closeSocket = (data, socket) => {
   if (typeof data === 'string') {
     data = { message: data };
   }
 
   data.channel = socket.current.channel;
-  data.message = data.message.replace(/:([\w]+):/g, (match, property) => socket.current[property] || match);
+  data.message = reg(data.message, socket);
   socket.close(1011, JSON.stringify(data));
   socket.current = null;
   return null;
@@ -144,7 +145,11 @@ class Whir extends Emitter {
 
   send(data, client) {
     data.channel = client.current.channel;
-    data.message = data.message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
+    if (data.alert) {
+      data.message = data.alert;
+      data.alert = true;
+    }
+    data.message = reg(data.message, client);
     client.send(JSON.stringify(data), { binary: true, mask: true }, (error) => {
       if (error) {
         this.emit('error', `Outgoing message: ${error.message}`);

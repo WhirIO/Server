@@ -20,10 +20,10 @@ const setupNodemon = (grunt, callback) => ({
 module.exports = (grunt) => {
   grunt.initConfig({
     nodemon: setupNodemon(grunt, (nodemon) => {
-      console.log();
+      process.stdout.write('\n\r');
       nodemon.on('log', (event) => {
         if (event.type === 'status') {
-          console.log(`✔︎ ${event.colour}`);
+          process.stdout.write(`✔︎ ${event.colour}\n\r`);
         }
       });
     }),
