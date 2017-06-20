@@ -20,6 +20,13 @@ const getStats = (channel, redis) => new Promise((yes, no) => {
     return yes(process(data));
   });
 });
+const response = (sucessMessage, channel, data) => {
+  if (!channel) {
+    data.alert = 'You don\'t have permission to update this channel.';
+  } else {
+    data.message = sucessMessage;
+  }
+};
 
 class Commander {
 
@@ -115,12 +122,7 @@ class Commander {
       session: this.session
     }, { description: this.query });
 
-    if (!channel) {
-      this.data.message = 'You don\'t have permission to update this channel.';
-      this.data.alert = true;
-    } else {
-      this.data.message = 'Description updated.';
-    }
+    response('Description updated.', channel, this.data);
   }
 
   async max() {
@@ -136,12 +138,7 @@ class Commander {
       session: this.session
     }, { maxUsers });
 
-    if (!channel) {
-      this.data.message = 'You don\'t have permission to update this channel.';
-      this.data.alert = true;
-    } else {
-      this.data.message = `Max. users set to _${maxUsers}_.`;
-    }
+    response(`Max. users set to _${maxUsers}_.`, channel, this.data);
   }
 
   async private() {
@@ -151,12 +148,7 @@ class Commander {
       session: this.session
     }, { 'access.public': false, 'access.password': hash });
 
-    if (!channel) {
-      this.data.message = 'You don\'t have permission to update this channel.';
-      this.data.alert = true;
-    } else {
-      this.data.message = 'The channel is now private.';
-    }
+    response('The channel is now private.', channel, this.data);
   }
 
   async public() {
@@ -165,12 +157,7 @@ class Commander {
       session: this.session
     }, { 'access.public': true, 'access.password': null });
 
-    if (!channel) {
-      this.data.message = 'You don\'t have permission to update this channel.';
-      this.data.alert = true;
-    } else {
-      this.data.message = 'The channel is now public.';
-    }
+    response('The channel is now public.', channel, this.data);
   }
 }
 
