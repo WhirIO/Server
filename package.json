@@ -17,7 +17,7 @@
     "url": "https://github.com/WhirIO/Server"
   },
   "engines": {
-    "node": ">=8"
+    "node": "8.1.4"
   },
   "dependencies": {
     "bcrypt": "^1.0.2",
