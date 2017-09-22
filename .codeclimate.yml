@@ -1,0 +1,13 @@
+JavaScript: true
+
+engines:
+  eslint:
+    enabled: true
+ratings:
+   paths:
+   - "app/**/*"
+   - "**.js"
+exclude_paths:
+- "media/**/*"
+- "**.json"
+- "**.md"
