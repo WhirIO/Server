@@ -14,11 +14,14 @@ const log = (message, level) => {
  * Pre-load the models, then boot the application.
  * @see models/index.js
  */
-m.load(config.mongo).then(() => {
-  const whir = new Whir({ port: process.env.PORT, redisConf: config.redis });
-  whir.on('info', message => log(message, 'info'));
-  whir.on('warning', message => log(message, 'warning'));
-  whir.on('error', message => log(message, 'error'));
-}).catch((error) => {
-  log(error, 'error');
-});
+m
+  .load(config.mongo)
+  .then(() => {
+    const whir = new Whir({ port: process.env.PORT, redisConf: config.redis });
+    whir.on('info', (message) => log(message, 'info'));
+    whir.on('warning', (message) => log(message, 'warning'));
+    whir.on('error', (message) => log(message, 'error'));
+  })
+  .catch((error) => {
+    log(error, 'error');
+  });

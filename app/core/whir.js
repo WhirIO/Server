@@ -6,15 +6,13 @@ const redis = require('redis');
 const roli = require('roli');
 const WS = require('uws');
 
-const reg = (message, client) => message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
+const reg = (message, client) =>
+  message.replace(/:([\w]+):/g, (match, property) => client.current[property] || match);
 const closeSocket = (data, socket) => {
-  if (typeof data === 'string') {
-    data = { message: data };
-  }
-
-  data.channel = socket.current.channel;
-  data.message = reg(data.message, socket);
-  socket.close(1011, JSON.stringify(data));
+  const socketData = typeof data === 'string' ? { message: data } : data;
+  socketData.channel = socket.current.channel;
+  socketData.message = reg(socketData.message, socket);
+  socket.close(1011, JSON.stringify(socketData));
   socket.current = null;
   return null;
 };
@@ -24,7 +22,9 @@ const socketState = async (socket, channel) => {
   }
 
   const plainPassword = socket.current.password;
-  socket.current.password = socket.current.password ? await bcrypt.hash(socket.current.password, 12) : null;
+  socket.current.password = socket.current.password
+    ? await bcrypt.hash(socket.current.password, 12)
+    : null;
   if (channel.connectedUsers.length === channel.maxUsers) {
     return closeSocket('This channel does not accept more users.', socket);
   }
@@ -36,11 +36,11 @@ const socketState = async (socket, channel) => {
 
     const match = await bcrypt.compare(plainPassword, channel.password);
     if (!match) {
-      return closeSocket('Your password does not match this channel\'s.', socket);
+      return closeSocket("Your password does not match this channel's.", socket);
     }
   }
 
-  if (channel.connectedUsers.find(user => user.user === socket.current.user)) {
+  if (channel.connectedUsers.find((user) => user.user === socket.current.user)) {
     return closeSocket('This username (:user:) is already in use in this channel.', socket);
   }
 
@@ -48,7 +48,6 @@ const socketState = async (socket, channel) => {
 };
 
 class Whir extends Emitter {
-
   constructor({ port, redisConf }) {
     super();
 
@@ -86,14 +85,18 @@ class Whir extends Emitter {
       channel.connectedUsers.push(socket.current);
       await channel.save();
       this.redis.zadd(socket.current.channel, 'NX', 1, 'channelMessages');
-      this.send({
-        message: 'Welcome to the _:channel:_ channel!',
-        currentUsers: channel.connectedUsers
-          .map((user) => {
-            const current = user.user;
-            return current !== socket.current.user ? current : null;
-          }).filter(user => user)
-      }, socket);
+      this.send(
+        {
+          message: 'Welcome to the _:channel:_ channel!',
+          currentUsers: channel.connectedUsers
+            .map((user) => {
+              const current = user.user;
+              return current !== socket.current.user ? current : null;
+            })
+            .filter((user) => user)
+        },
+        socket
+      );
 
       this.broadcast({ message: '-I joined the channel.-', action: 'join' }, socket);
 
@@ -120,11 +123,14 @@ class Whir extends Emitter {
       }
 
       await m.channel.removeUser(socket.current);
-      this.broadcast({
-        user: socket.current.user,
-        message: '-I left the channel.-',
-        action: 'leave'
-      }, socket);
+      this.broadcast(
+        {
+          user: socket.current.user,
+          message: '-I left the channel.-',
+          action: 'leave'
+        },
+        socket
+      );
     });
   }
 
