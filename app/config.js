@@ -26,12 +26,7 @@ module.exports = {
   },
   mongo: {
     url: process.env.MONGO_URI,
-    options: {
-      db: { native_parser: true },
-      server: {
-        poolSize: parseInt(process.env.MONGO_POOL_SIZE, 10) || 10,
-        socketOptions: { keepAlive: parseInt(process.env.MONGO_KEEP_ALIVE, 10) || 1 }
-      }
-    }
+    poolSize: parseInt(process.env.MONGO_POOL_SIZE, 10) || 10,
+    socketOptions: { keepAlive: parseInt(process.env.MONGO_KEEP_ALIVE, 10) || 1 }
   }
 };
