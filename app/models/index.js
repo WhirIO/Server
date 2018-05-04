@@ -2,7 +2,6 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 
 class Models {
-
   constructor() {
     this.schemas = {};
   }
@@ -11,13 +10,13 @@ class Models {
    * Load all existing models.
    * Should be called only at boot time.
    */
-  load({ url, options }) {
+  load(config) {
     return new Promise(async (yes, no) => {
       try {
         mongoose.Promise = global.Promise;
-        await mongoose.connect(url, options);
+        await mongoose.connect(config.url, { poolSize: config.poolSize });
       } catch (error) {
-        return no('I can\'t connect to the database server.');
+        return no(new Error(`I can't connect to the database server; ${error.message}`));
       }
 
       const schemaPath = `${__dirname}/schemas/`;
@@ -27,7 +26,7 @@ class Models {
             const schema = require.call(null, `${schemaPath}${file}`);
             this.schemas[file.replace('.js', '')] = schema(mongoose);
           } catch (error) {
-            return no(`I can't load model: ${error.stack}`);
+            return no(new Error(`I can't load model: ${error.stack}`));
           }
         }
 
@@ -46,7 +45,7 @@ class Models {
     return new Promise((yes, no) => {
       const loadedModel = this.schemas[model];
       if (!loadedModel) {
-        return no(`The "${model}" model does not exist.`);
+        return no(new Error(`The "${model}" model does not exist.`));
       }
 
       return yes(loadedModel);

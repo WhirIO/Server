@@ -1,6 +1,6 @@
 {
   "name": "whir.io",
-  "version": "1.1.3",
+  "version": "1.2.0",
   "description": "The whir.io chat server. [alpha]",
   "keywords": [
     "chat",
@@ -17,26 +17,29 @@
     "url": "https://github.com/WhirIO/Server"
   },
   "engines": {
-    "node": "8.1.4"
+    "node": "8.9.4"
   },
   "dependencies": {
-    "bcrypt": "^1.0.3",
-    "mongoose": "^4.11.12",
+    "bcrypt": "^2.0.1",
+    "mongoose": "^5.0.17",
     "redis": "^2.8.0",
     "roli": "^0.2.1",
-    "uws": "^8.14.1"
+    "uws": "^9.148.0"
   },
   "devDependencies": {
-    "dotenv": "^4.0.0",
-    "eslint": "^4.7.2",
-    "eslint-config-airbnb-base": "^12.0.0",
-    "eslint-plugin-import": "^2.7.0",
-    "grunt": "^1.0.1",
-    "grunt-eslint": "^20.1.0",
-    "grunt-nodemon": "^0.4.2"
+    "dotenv": "^5.0.1",
+    "eslint": "^4.18.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-prettier": "^2.6.0",
+    "prettier": "^1.12.1"
   },
   "scripts": {
-    "local": "node -r dotenv/config ./app/index.js",
-    "start": "node ./app/index.js"
+    "eslint": "eslint --quiet .",
+    "eslint:fix": "eslint --quiet --fix .",
+    "start": "node ./app/index.js",
+    "start:local": "node -r dotenv/config ./app/index.js",
+    "test": "mocha -R spec -t 5000"
   }
 }
