@@ -24,7 +24,8 @@
     "mongoose": "^5.0.17",
     "redis": "^2.8.0",
     "roli": "^0.2.1",
-    "uws": "^9.148.0"
+    "uws": "^9.148.0",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "dotenv": "^5.0.1",
@@ -40,6 +41,9 @@
     "eslint:fix": "eslint --quiet --fix .",
     "start": "node ./app/index.js",
     "local": "node -r dotenv/config ./app/index.js",
-    "test": "mocha -R spec -t 5000"
-  }
+    "test": "mocha -R spec -t 5000",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
