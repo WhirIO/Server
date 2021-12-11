@@ -23,7 +23,7 @@
     "bcrypt": "^2.0.1",
     "mongoose": "^5.0.17",
     "redis": "^2.8.0",
-    "roli": "^0.2.1",
+    "roli": "^0.3.0",
     "uws": "^9.148.0"
   },
   "devDependencies": {
